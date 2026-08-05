@@ -3,7 +3,7 @@
   grid-template-columns: 1fr 1fr;
   gap: clamp(2rem, 5vw, 4rem);
   align-items: center;
-  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+  padding: clamp(2rem, 6vw, 4rem) clamp(1.5rem, 5vw, 4rem);
   background-color: var(--color-background);
   color: var(--color-text);
 }
@@ -44,7 +44,8 @@
 .imageWrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 16 / 10;
+  max-height: 55vh;
   border-radius: 16px;
   overflow: hidden;
 }
@@ -60,5 +61,10 @@
 
   .reversed {
     direction: ltr;
+  }
+
+  .imageWrapper {
+    aspect-ratio: 4 / 3;
+    max-height: 40vh;
   }
 }

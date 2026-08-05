@@ -29,10 +29,29 @@ export interface SplitIntroProps {
   ctaHref?: string;
 }
 
+export interface FeaturedProduct {
+  id: string;
+  name: string;
+  price: string;
+  image: string;
+  href?: string;
+}
+
+export interface PromoBanner {
+  id: string;
+  tag?: string;
+  title: string;
+  ctaLabel?: string;
+  href: string;
+  image?: string;
+}
+
 export interface ProductCarouselProps {
   title?: string;
-  subtitle?: string;
-  products: Product[];
+  viewAllLabel?: string;
+  viewAllHref?: string;
+  items: FeaturedProduct[];
+  promos: PromoBanner[];
 }
 
 export interface FeatureBannerProps {

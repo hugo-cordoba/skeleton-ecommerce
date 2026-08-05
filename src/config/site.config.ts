@@ -8,12 +8,12 @@ export const siteConfig = {
   name: 'Tu Marca',
   description: 'Landing page base para tiendas online, personalizable por cliente.',
   colors: {
-    primary: '#3f4a3d',
-    primaryLight: '#7c8d72',
-    secondary: '#b8916a',
-    background: '#f0efe8',
+    primary: '#27272a',
+    primaryLight: '#52525b',
+    secondary: '#a1a1aa',
+    background: '#f4f4f5',
     surface: '#ffffff',
-    text: '#1e1e1c',
-    textMuted: '#6b6b63',
+    text: '#18181b',
+    textMuted: '#71717a',
   },
 } as const;

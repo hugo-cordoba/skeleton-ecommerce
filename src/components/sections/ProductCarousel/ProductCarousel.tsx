@@ -1,42 +1,66 @@
-'use client';
-
-import { useRef } from 'react';
-import ProductCard from '@/components/ui/ProductCard/ProductCard';
+import Image from 'next/image';
+import Link from 'next/link';
 import type { ProductCarouselProps } from '@/types/section.types';
 import styles from './ProductCarousel.module.css';
 
-export default function ProductCarousel({ title, subtitle, products }: ProductCarouselProps) {
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (direction: 'left' | 'right') => {
-    const track = trackRef.current;
-    if (!track) return;
-    const amount = track.clientWidth * 0.8;
-    track.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' });
-  };
-
+export default function ProductCarousel({ title, viewAllLabel, viewAllHref, items, promos }: ProductCarouselProps) {
   return (
     <section className={styles.section}>
       <div className={styles.header}>
-        <div>
-          {title && <h2 className={styles.title}>{title}</h2>}
-          {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
-        </div>
-        <div className={styles.controls}>
-          <button type="button" aria-label="Anterior" onClick={() => scroll('left')} className={styles.arrow}>
-            &#8249;
-          </button>
-          <button type="button" aria-label="Siguiente" onClick={() => scroll('right')} className={styles.arrow}>
-            &#8250;
-          </button>
-        </div>
+        {title && <h2 className={styles.title}>{title}</h2>}
+        {viewAllLabel && viewAllHref && (
+          <Link href={viewAllHref} className={styles.viewAll}>
+            {viewAllLabel}
+          </Link>
+        )}
       </div>
 
-      <div className={styles.track} ref={trackRef}>
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+      <div className={styles.itemsRow}>
+        {items.map((item) => {
+          const content = (
+            <>
+              <div className={styles.itemImageWrapper}>
+                <Image src={item.image} alt={item.name} fill sizes="160px" className={styles.itemImage} />
+              </div>
+              <div className={styles.itemInfo}>
+                <span className={styles.itemName}>{item.name}</span>
+                <span className={styles.itemPrice}>{item.price}</span>
+              </div>
+            </>
+          );
+
+          return item.href ? (
+            <Link key={item.id} href={item.href} className={styles.item}>
+              {content}
+            </Link>
+          ) : (
+            <div key={item.id} className={styles.item}>
+              {content}
+            </div>
+          );
+        })}
       </div>
+
+      {promos && promos.length > 0 && (
+        <div className={styles.promos}>
+          {promos.map((promo) => (
+            <Link
+              key={promo.id}
+              href={promo.href}
+              className={styles.promoCard}
+              style={promo.image ? { backgroundImage: `url(${promo.image})` } : undefined}
+            >
+              {promo.tag && <span className={styles.promoTag}>{promo.tag}</span>}
+              <p className={styles.promoTitle}>{promo.title}</p>
+              {promo.ctaLabel && (
+                <span className={styles.promoCta}>
+                  {promo.ctaLabel} <span aria-hidden="true">&#8594;</span>
+                </span>
+              )}
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
