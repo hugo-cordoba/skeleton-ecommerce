@@ -1,0 +1,30 @@
+.section {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+}
+
+.text {
+  max-width: 640px;
+  margin-bottom: 2.5rem;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.description {
+  opacity: 0.85;
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+}
+
+.products {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}

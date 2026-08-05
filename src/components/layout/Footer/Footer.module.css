@@ -1,0 +1,7 @@
+.footer {
+  padding: 2rem clamp(1.5rem, 5vw, 4rem);
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  font-size: 0.85rem;
+  text-align: center;
+}
