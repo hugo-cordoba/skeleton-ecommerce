@@ -1,4 +1,15 @@
-import type { SectionConfig } from '@/types/section.types';
+import type { SectionConfig, NavLink } from '@/types/section.types';
+
+/**
+ * Enlaces de navegacion compartidos, usados por el Header fijo.
+ * Antes vivian dentro de hero.props.navLinks; ahora estan aqui para
+ * que el Header (fuera del Hero) pueda usarlos tambien.
+ */
+export const siteNavLinks: NavLink[] = [
+  { label: 'Catalogo', href: '#productos' },
+  { label: 'Nosotros', href: '#nosotros' },
+  { label: 'Contacto', href: '#contacto' },
+];
 
 /**
  * Este es el fichero "comun" para AÑADIR, QUITAR o REORDENAR secciones
@@ -27,11 +38,6 @@ export const landingSections: SectionConfig[] = [
       },
       ctaLabel: 'Ver catalogo',
       ctaHref: '#productos',
-      navLinks: [
-        { label: 'Catalogo', href: '#productos' },
-        { label: 'Nosotros', href: '#nosotros' },
-        { label: 'Contacto', href: '#contacto' },
-      ],
     },
   },
   {
