@@ -84,3 +84,9 @@ export type SectionConfig =
   | { id: string; type: 'productCarousel'; props: ProductCarouselProps }
   | { id: string; type: 'featureBanner'; props: FeatureBannerProps }
   | { id: string; type: 'categoryGrid'; props: CategoryGridProps };
+
+export interface SocialLink {
+  label: string;
+  initial: string;
+  href: string;
+}

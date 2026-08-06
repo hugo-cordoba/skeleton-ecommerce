@@ -1,4 +1,4 @@
-import type { SectionConfig, NavLink } from '@/types/section.types';
+import type { SectionConfig, NavLink, SocialLink } from '@/types/section.types';
 
 /**
  * Enlaces de navegacion compartidos, usados por el Header fijo.
@@ -110,3 +110,20 @@ export const landingSections: SectionConfig[] = [
     },
   },
 ];
+
+export const footerContent = {
+  slogan: 'Escribe aquí tu eslogan',
+  socialLinks: [
+    { label: 'Facebook', initial: 'F', href: '#' },
+    { label: 'Twitter', initial: 'T', href: '#' },
+    { label: 'LinkedIn', initial: 'L', href: '#' },
+    { label: 'WhatsApp', initial: 'W', href: '#' },
+    { label: 'Instagram', initial: 'I', href: '#' },
+  ] as SocialLink[],
+  aboutTitle: 'Sobre nosotros',
+  aboutText:
+    'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.',
+  phone: '+0123 456 789 00',
+  email: 'user@example.com',
+  newsletterPlaceholder: 'Escribe tu email',
+};

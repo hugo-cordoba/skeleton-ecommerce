@@ -1,7 +1,158 @@
 .footer {
-  padding: 2rem clamp(1.5rem, 5vw, 4rem);
   background-color: var(--color-primary);
   color: var(--color-background);
+  padding: clamp(3rem, 8vw, 5rem) clamp(1.5rem, 5vw, 4rem) 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.brandName {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.slogan {
   font-size: 0.85rem;
+  opacity: 0.75;
+  margin-top: -0.6rem;
+}
+
+.socials {
+  display: flex;
+  gap: 0.75rem;
+  list-style: none;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.socialLink:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.followLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
+.navList {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.navList a {
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.navList a:hover {
+  opacity: 1;
+}
+
+.aboutTitle {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+.aboutText {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  opacity: 0.8;
+  max-width: 320px;
+}
+
+.contactItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.85rem;
+}
+
+.contactLabel {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.newsletter {
+  display: flex;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.newsletterInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0.65rem 1rem;
+  color: inherit;
+  font-size: 0.85rem;
+}
+
+.newsletterInput::placeholder {
+  color: inherit;
+  opacity: 0.6;
+}
+
+.newsletterInput:focus {
+  outline: none;
+}
+
+.newsletterButton {
+  border: none;
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  width: 42px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.bottomBar {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 1.25rem 0;
+  font-size: 0.8rem;
   text-align: center;
+  opacity: 0.75;
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
