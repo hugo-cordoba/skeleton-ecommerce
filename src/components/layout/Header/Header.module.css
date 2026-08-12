@@ -12,6 +12,9 @@
   align-items: center;
   gap: 1rem;
   padding: 1.1rem clamp(0.75rem, 2.5vw, 1.5rem);
+  position: relative;
+  z-index: 80;
+  background-color: var(--color-surface);
 }
 
 .side {
@@ -21,6 +24,7 @@
 }
 
 .menuButton {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,20 +45,43 @@
   width: 19px;
   height: 1.2px;
   background-color: var(--color-text);
+  /* Transiciona posicion, rotacion y color -> es lo que anima
+     de "hamburguesa" a "X" */
+  transition: transform 0.3s ease, top 0.3s ease, background-color 0.2s ease;
 }
 
 .menuIcon {
   position: relative;
 }
 
-.menuIcon::before {
+.menuIcon::before,
+.menuIcon::after {
   position: absolute;
+  left: 0;
+}
+
+.menuIcon::before {
   top: -6px;
 }
 
 .menuIcon::after {
-  position: absolute;
   top: 6px;
+}
+
+/* Estado abierto: la linea central desaparece y las otras dos
+   se centran y rotan 45/-45 grados para formar la X */
+.menuButton[data-open='true'] .menuIcon {
+  background-color: transparent;
+}
+
+.menuButton[data-open='true'] .menuIcon::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.menuButton[data-open='true'] .menuIcon::after {
+  top: 0;
+  transform: rotate(-45deg);
 }
 
 .logo {
@@ -89,10 +116,6 @@
   color: var(--color-text-muted);
 }
 
-/* ---------------------------------------------------------------
-   OVERLAY: fundido un poco más largo que antes (0.35s -> 0.5s)
-   para que acompañe al panel sin adelantarse.
-   --------------------------------------------------------------- */
 .overlay {
   position: fixed;
   inset: 0;
@@ -113,11 +136,12 @@
   top: 0;
   left: 0;
   height: 100vh;
-  width: min(360px, 85vw);
+  width: 30vw;
   background-color: var(--color-surface);
   z-index: 70;
   display: flex;
   flex-direction: column;
+  padding-top: 4.5rem;
   transform: translateX(-100%);
   transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
   will-change: transform;
@@ -128,31 +152,6 @@
   transform: translateX(0);
 }
 
-.sidebarHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.sidebarLogo {
-  font-family: var(--font-heading);
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.closeButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.1rem;
-  line-height: 1;
-  color: var(--color-text);
-  padding: 0.4rem;
-}
-
 .sidebarList {
   list-style: none;
   padding: 1.5rem;
@@ -161,14 +160,6 @@
   gap: 1.5rem;
 }
 
-/* ---------------------------------------------------------------
-   Aparición escalonada de cada enlace: entran con un ligero
-   desplazamiento + fundido, cada uno con más retraso que el
-   anterior. Es el detalle que hace que el menú se sienta "vivo"
-   en vez de que todo el contenido aparezca de golpe con el panel.
-   Al cerrar, no hay transition-delay (solo se aplica bajo
-   [data-open='true']), así que desaparecen todos a la vez y rápido.
-   --------------------------------------------------------------- */
 .sidebarList li {
   opacity: 0;
   transform: translateX(-20px);
@@ -231,5 +222,9 @@
 
   .logo {
     font-size: 1.1rem;
+  }
+
+  .sidebar {
+    width: 85vw;
   }
 }

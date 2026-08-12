@@ -35,7 +35,6 @@ export default function Header({
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Bloquea el scroll del body mientras el sidebar esta abierto
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => {
@@ -43,7 +42,6 @@ export default function Header({
     };
   }, [menuOpen]);
 
-  // Cierra con la tecla Escape
   useEffect(() => {
     if (!menuOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -60,10 +58,11 @@ export default function Header({
           <button
             type="button"
             className={styles.menuButton}
-            onClick={() => setMenuOpen(true)}
+            data-open={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-controls="site-sidebar"
-            aria-label="Abrir menú"
+            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
           >
             <span className={styles.menuIcon} />
           </button>
@@ -89,7 +88,6 @@ export default function Header({
         </div>
       </div>
 
-      {/* Overlay oscuro detras del sidebar */}
       <div
         className={styles.overlay}
         data-open={menuOpen}
@@ -97,24 +95,14 @@ export default function Header({
         aria-hidden="true"
       />
 
+      {/* Sin cabecera propia: el topbar de arriba hace esa funcion,
+          por eso el <aside> empieza directo con la navegacion. */}
       <aside
         id="site-sidebar"
         className={styles.sidebar}
         data-open={menuOpen}
         aria-hidden={!menuOpen}
       >
-        <div className={styles.sidebarHeader}>
-          <span className={styles.sidebarLogo}>{siteName}</span>
-          <button
-            type="button"
-            className={styles.closeButton}
-            onClick={() => setMenuOpen(false)}
-            aria-label="Cerrar menú"
-          >
-            &#10005;
-          </button>
-        </div>
-
         <nav>
           <ul className={styles.sidebarList}>
             {navLinks.map((link) => (
@@ -127,7 +115,6 @@ export default function Header({
           </ul>
         </nav>
 
-        {/* Enlaces secundarios, visibles tambien en movil dentro del sidebar */}
         <div className={styles.sidebarFooter}>
           <a href={loginHref} onClick={() => setMenuOpen(false)}>
             {loginLabel}
