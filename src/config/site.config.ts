@@ -5,7 +5,7 @@
  * cambiarlos aqui retematiza todo el sitio sin tocar ningun componente.
  */
 export const siteConfig = {
-  name: 'Tu Marca',
+  name: 'floristeria caylu',
   description: 'Landing page base para tiendas online, personalizable por cliente.',
   colors: {
     primary: '#27272a',

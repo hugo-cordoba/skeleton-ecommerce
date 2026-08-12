@@ -1,19 +1,6 @@
 import type { Metadata } from 'next';
-import { Fraunces, Inter } from 'next/font/google';
 import { siteConfig } from '@/config/site.config';
 import './globals.css';
-
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  variable: '--font-heading',
-  weight: ['400', '500', '600'],
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-body',
-  weight: ['400', '500', '600'],
-});
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -21,8 +8,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // Los colores de site.config.ts se inyectan aqui como variables CSS.
-  // Cambiarlos alli retematiza toda la web sin tocar ningun componente.
+  // Los colores de site.config.ts y la tipografia se inyectan aqui
+  // como variables CSS. Cambiarlos aqui retematiza toda la web.
   const themeVars = {
     '--color-primary': siteConfig.colors.primary,
     '--color-primary-light': siteConfig.colors.primaryLight,
@@ -31,10 +18,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     '--color-surface': siteConfig.colors.surface,
     '--color-text': siteConfig.colors.text,
     '--color-text-muted': siteConfig.colors.textMuted,
+    '--font-heading': `'Helvetica', Arial, sans-serif`,
+    '--font-body': `'Helvetica', Arial, sans-serif`,
   } as React.CSSProperties;
 
   return (
-    <html lang="es" className={`${fraunces.variable} ${inter.variable}`}>
+    <html lang="es">
       <body style={themeVars}>{children}</body>
     </html>
   );
