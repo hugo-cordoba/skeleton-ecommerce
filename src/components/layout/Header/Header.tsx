@@ -97,7 +97,6 @@ export default function Header({
         aria-hidden="true"
       />
 
-      {/* Sidebar que entra desde la izquierda */}
       <aside
         id="site-sidebar"
         className={styles.sidebar}
