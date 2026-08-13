@@ -1,50 +1,68 @@
-.section {
-  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
-  background-color: var(--color-background);
-}
-
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
-.title {
-  font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 500;
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
 }
 
-.viewAll {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  text-decoration: none;
+.controls {
+  display: flex;
+  gap: 0.5rem;
 }
 
-.viewAll:hover {
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--color-secondary);
+  background-color: var(--color-surface);
   color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.navButton:hover {
+  background-color: var(--color-background);
+  border-color: var(--color-primary);
 }
 
 .itemsRow {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
   gap: 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding-bottom: 0.5rem;
   margin-bottom: 2.5rem;
+  scrollbar-width: none;
+}
+
+.itemsRow::-webkit-scrollbar {
+  display: none;
 }
 
 .item {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
   gap: 0.75rem;
+  flex: 0 0 200px;
+  scroll-snap-align: start;
   text-decoration: none;
   color: inherit;
 }
 
 .itemImageWrapper {
   position: relative;
-  width: 100%;
+  width: 200px;
   aspect-ratio: 1 / 1;
   border-radius: 16px;
   overflow: hidden;
@@ -54,98 +72,4 @@
 
 .item:hover .itemImageWrapper {
   transform: translateY(-2px);
-}
-
-.itemImage {
-  object-fit: cover;
-}
-
-.itemInfo {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding-inline: 0.5rem;
-}
-
-.itemName {
-  font-size: 0.85rem;
-  color: var(--color-text);
-  font-weight: 500;
-}
-
-.itemPrice {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-
-.promos {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-.promoCard {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  min-height: 200px;
-  border-radius: 20px;
-  border: 1px solid var(--color-background);
-  background-color: var(--color-surface);
-  background-size: cover;
-  background-position: center;
-  padding: 1.75rem;
-  text-decoration: none;
-  color: var(--color-text);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.promoCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-}
-
-.promoTag {
-  align-self: flex-start;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  background-color: var(--color-background);
-  color: var(--color-text-muted);
-}
-
-.promoTitle {
-  font-family: var(--font-heading);
-  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
-  font-weight: 500;
-  line-height: 1.2;
-  max-width: 220px;
-}
-
-.promoCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-top: auto;
-}
-
-@media (max-width: 900px) {
-  .itemsRow {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .itemsRow {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .promos {
-    grid-template-columns: 1fr;
-  }
 }

@@ -11,12 +11,13 @@ import styles from '@/components/checkout/checkoutForm.module.css';
 
 export default function CheckoutShippingPage() {
   const router = useRouter();
-  const { items, subtotal } = useCart();
-  const { contactInfo, shippingAddress, shippingMethod, setShippingMethod } = useCheckout();
+  const { items, subtotal, hydrated: cartHydrated } = useCart();
+  const { contactInfo, shippingAddress, shippingMethod, hydrated: checkoutHydrated, setShippingMethod } = useCheckout();
 
   const [selectedId, setSelectedId] = useState(shippingMethod?.id ?? shippingMethods[0].id);
 
   useEffect(() => {
+    if (!cartHydrated || !checkoutHydrated) return;
     if (items.length === 0) {
       router.replace('/cart');
       return;
@@ -24,9 +25,9 @@ export default function CheckoutShippingPage() {
     if (!contactInfo || !shippingAddress) {
       router.replace('/checkout/information');
     }
-  }, [items.length, contactInfo, shippingAddress, router]);
+  }, [cartHydrated, checkoutHydrated, items.length, contactInfo, shippingAddress, router]);
 
-  if (items.length === 0 || !contactInfo || !shippingAddress) return null;
+  if (!cartHydrated || !checkoutHydrated || items.length === 0 || !contactInfo || !shippingAddress) return null;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

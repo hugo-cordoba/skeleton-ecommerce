@@ -28,7 +28,7 @@ export default function CartLineItem({ item, onUpdateQuantity, onRemove }: CartL
           {item.name}
         </Link>
         {variantSummary && <span className={styles.variants}>{variantSummary}</span>}
-        <span className={styles.unitPrice}>{item.price}</span>
+        <span className={styles.unitPrice}>{formatPrice(item.unitPrice)}</span>
 
         <button type="button" className={styles.remove} onClick={() => onRemove(item.id)}>
           Eliminar

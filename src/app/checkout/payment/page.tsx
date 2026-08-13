@@ -14,8 +14,8 @@ function generateOrderNumber(): string {
 
 export default function CheckoutPaymentPage() {
   const router = useRouter();
-  const { items, subtotal, clearCart } = useCart();
-  const { contactInfo, shippingAddress, shippingMethod, completeOrder } = useCheckout();
+  const { items, subtotal, clearCart, hydrated: cartHydrated } = useCart();
+  const { contactInfo, shippingAddress, shippingMethod, hydrated: checkoutHydrated, completeOrder } = useCheckout();
 
   const [cardName, setCardName] = useState('');
   const [cardNumber, setCardNumber] = useState('');
@@ -23,6 +23,7 @@ export default function CheckoutPaymentPage() {
   const [cvc, setCvc] = useState('');
 
   useEffect(() => {
+    if (!cartHydrated || !checkoutHydrated) return;
     if (items.length === 0) {
       router.replace('/cart');
       return;
@@ -34,9 +35,9 @@ export default function CheckoutPaymentPage() {
     if (!shippingMethod) {
       router.replace('/checkout/shipping');
     }
-  }, [items.length, contactInfo, shippingAddress, shippingMethod, router]);
+  }, [cartHydrated, checkoutHydrated, items.length, contactInfo, shippingAddress, shippingMethod, router]);
 
-  if (items.length === 0 || !contactInfo || !shippingAddress || !shippingMethod) return null;
+  if (!cartHydrated || !checkoutHydrated || items.length === 0 || !contactInfo || !shippingAddress || !shippingMethod) return null;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

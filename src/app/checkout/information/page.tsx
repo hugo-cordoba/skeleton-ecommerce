@@ -9,8 +9,8 @@ import styles from '@/components/checkout/checkoutForm.module.css';
 
 export default function CheckoutInformationPage() {
   const router = useRouter();
-  const { items } = useCart();
-  const { contactInfo, shippingAddress, setContactInfo, setShippingAddress } = useCheckout();
+  const { items, hydrated: cartHydrated } = useCart();
+  const { contactInfo, shippingAddress, hydrated: checkoutHydrated, setContactInfo, setShippingAddress } = useCheckout();
 
   const [email, setEmail] = useState(contactInfo?.email ?? '');
   const [fullName, setFullName] = useState(shippingAddress?.fullName ?? '');
@@ -23,12 +23,13 @@ export default function CheckoutInformationPage() {
 
   // Sin cesta no hay nada que tramitar.
   useEffect(() => {
+    if (!cartHydrated) return;
     if (items.length === 0) {
       router.replace('/cart');
     }
-  }, [items.length, router]);
+  }, [cartHydrated, items.length, router]);
 
-  if (items.length === 0) return null;
+  if (!cartHydrated || !checkoutHydrated || items.length === 0) return null;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

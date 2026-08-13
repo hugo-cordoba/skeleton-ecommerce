@@ -80,6 +80,7 @@ function checkoutReducer(state: CheckoutState, action: CheckoutAction): Checkout
 }
 
 interface CheckoutContextValue extends CheckoutState {
+  hydrated: boolean;
   setContactInfo: (info: ContactInfo) => void;
   setShippingAddress: (address: ShippingAddress) => void;
   setShippingMethod: (method: ShippingMethod) => void;
@@ -115,6 +116,7 @@ export function CheckoutProvider({ children }: { children: React.ReactNode }) {
 
   const value: CheckoutContextValue = {
     ...state,
+    hydrated,
     setContactInfo: (info) => dispatch({ type: 'SET_CONTACT_INFO', payload: info }),
     setShippingAddress: (address) => dispatch({ type: 'SET_SHIPPING_ADDRESS', payload: address }),
     setShippingMethod: (method) => dispatch({ type: 'SET_SHIPPING_METHOD', payload: method }),

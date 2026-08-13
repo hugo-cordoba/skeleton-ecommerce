@@ -1,26 +1,47 @@
+'use client';
+
+import { useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ProductCarouselProps } from '@/types/section.types';
 import styles from './ProductCarousel.module.css';
 
 export default function ProductCarousel({ title, viewAllLabel, viewAllHref, items, promos }: ProductCarouselProps) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+
+  function scrollByAmount(direction: 1 | -1) {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: el.clientWidth * 0.8 * direction, behavior: 'smooth' });
+  }
+
   return (
     <section className={styles.section}>
       <div className={styles.header}>
         {title && <h2 className={styles.title}>{title}</h2>}
-        {viewAllLabel && viewAllHref && (
-          <Link href={viewAllHref} className={styles.viewAll}>
-            {viewAllLabel}
-          </Link>
-        )}
+        <div className={styles.headerRight}>
+          {viewAllLabel && viewAllHref && (
+            <Link href={viewAllHref} className={styles.viewAll}>
+              {viewAllLabel}
+            </Link>
+          )}
+          <div className={styles.controls}>
+            <button type="button" className={styles.navButton} onClick={() => scrollByAmount(-1)} aria-label="Anterior">
+              &#8592;
+            </button>
+            <button type="button" className={styles.navButton} onClick={() => scrollByAmount(1)} aria-label="Siguiente">
+              &#8594;
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className={styles.itemsRow}>
+      <div className={styles.itemsRow} ref={scrollerRef}>
         {items.map((item) => {
           const content = (
             <>
               <div className={styles.itemImageWrapper}>
-                <Image src={item.image} alt={item.name} fill sizes="160px" className={styles.itemImage} />
+                <Image src={item.image} alt={item.name} fill sizes="200px" className={styles.itemImage} />
               </div>
               <div className={styles.itemInfo}>
                 <span className={styles.itemName}>{item.name}</span>
