@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
 import type { NavLink } from '@/types/section.types';
+import { useCart } from '@/context/CartContext';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -17,6 +18,7 @@ interface HeaderProps {
   wishlistLabel?: string;
   cartHref?: string;
   cartLabel?: string;
+  /** Opcional: si no se pasa, se usa el numero real de items del CartContext. */
   cartCount?: number;
 }
 
@@ -31,9 +33,13 @@ export default function Header({
   wishlistLabel = 'Wishlist',
   cartHref = '#',
   cartLabel = 'Cesta',
-  cartCount = 0,
+  cartCount,
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { itemCount } = useCart();
+  // Si algun caller pasa cartCount explicito (ej. un storybook/test), se respeta;
+  // si no, se usa el contador real del carrito.
+  const displayCartCount = cartCount ?? itemCount;
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -83,7 +89,7 @@ export default function Header({
             {wishlistLabel}
           </Link>
           <Link href={cartHref} className={styles.actionLink}>
-            {cartLabel} ({cartCount})
+            {cartLabel} ({displayCartCount})
           </Link>
         </div>
       </div>

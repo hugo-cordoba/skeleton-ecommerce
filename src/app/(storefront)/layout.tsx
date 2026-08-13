@@ -17,7 +17,9 @@ import { siteConfig } from '@/config/site.config';
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header siteName={siteConfig.name} navLinks={siteNavLinks} cartCount={0} />
+      {/* cartCount ya no se pasa a mano: Header lo lee directamente del
+          CartContext (ver src/context/CartContext.tsx). */}
+      <Header siteName={siteConfig.name} navLinks={siteNavLinks} />
       <main>{children}</main>
       <Footer siteName={siteConfig.name} navLinks={siteNavLinks} {...footerContent} />
     </>

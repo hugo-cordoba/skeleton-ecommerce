@@ -22,7 +22,7 @@ const accountNav = [
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header siteName={siteConfig.name} navLinks={siteNavLinks} cartCount={0} />
+      <Header siteName={siteConfig.name} navLinks={siteNavLinks} />
       <div>
         <nav>
           <ul>

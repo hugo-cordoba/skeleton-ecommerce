@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site.config';
+import { CartProvider } from '@/context/CartContext';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -24,7 +25,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="es">
-      <body style={themeVars}>{children}</body>
+      <body style={themeVars}>
+        {/* CartProvider en la raiz: asi el carrito (y su persistencia en
+            localStorage) esta disponible en cualquier ruta -- storefront,
+            checkout, account -- sin tener que envolver cada layout a mano. */}
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   );
 }
