@@ -39,20 +39,24 @@ export default function CheckoutPaymentPage() {
 
   if (!cartHydrated || !checkoutHydrated || items.length === 0 || !contactInfo || !shippingAddress || !shippingMethod) return null;
 
+  // Copias locales: dentro de handleSubmit (otra función) TS pierde el
+  // narrowing de arriba, así que fijamos aquí que ya no son null.
+  const confirmedContactInfo = contactInfo;
+  const confirmedShippingAddress = shippingAddress;
+  const confirmedShippingMethod = shippingMethod;
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    // Pago simulado: aqui es donde se integraria una pasarela real
-    // (Stripe, Redsys...) cuando haya backend.
     completeOrder({
       orderNumber: generateOrderNumber(),
-      email: contactInfo.email,
-      shippingAddress,
-      shippingMethod,
+      email: confirmedContactInfo.email,
+      shippingAddress: confirmedShippingAddress,
+      shippingMethod: confirmedShippingMethod,
       items,
       subtotal,
-      shippingCost: shippingMethod.price,
-      total: subtotal + shippingMethod.price,
+      shippingCost: confirmedShippingMethod.price,
+      total: subtotal + confirmedShippingMethod.price,
     });
 
     clearCart();
