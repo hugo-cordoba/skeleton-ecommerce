@@ -1,0 +1,40 @@
+.form {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0 clamp(1.5rem, 5vw, 4rem) clamp(2rem, 5vw, 3rem);
+  max-width: 480px;
+}
+
+.input {
+  flex: 1;
+  padding: 0.75rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-secondary);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  background-color: var(--color-primary-light);
+}

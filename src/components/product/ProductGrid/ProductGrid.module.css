@@ -1,0 +1,12 @@
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.75rem 1.5rem;
+  padding: 0 clamp(1.5rem, 5vw, 4rem) clamp(3rem, 8vw, 6rem);
+}
+
+.empty {
+  padding: 1rem clamp(1.5rem, 5vw, 4rem) clamp(4rem, 10vw, 7rem);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}

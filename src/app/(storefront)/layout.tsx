@@ -19,7 +19,7 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
     <>
       {/* cartCount ya no se pasa a mano: Header lo lee directamente del
           CartContext (ver src/context/CartContext.tsx). */}
-      <Header siteName={siteConfig.name} navLinks={siteNavLinks} />
+      <Header siteName={siteConfig.name} navLinks={siteNavLinks} searchHref="/search" cartHref="/cart" />
       <main>{children}</main>
       <Footer siteName={siteConfig.name} navLinks={siteNavLinks} {...footerContent} />
     </>

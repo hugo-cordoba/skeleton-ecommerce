@@ -102,11 +102,11 @@ export const landingSections: SectionConfig[] = [
     props: {
       title: 'Explora por categoria',
       categories: [
-        { label: 'Categoria 1', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+1' },
-        { label: 'Categoria 2', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+2' },
-        { label: 'Categoria 3', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+3' },
-        { label: 'Categoria 4', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+4' },
-      ],
+          { label: 'Categoria 1', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+1', href: '/category/categoria-1' },
+          { label: 'Categoria 2', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+2', href: '/category/categoria-2' },
+          { label: 'Categoria 3', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+3', href: '/category/categoria-3' },
+          { label: 'Categoria 4', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+4', href: '/category/categoria-4' },
+        ],
     },
   },
 ];

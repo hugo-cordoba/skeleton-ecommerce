@@ -13,7 +13,7 @@ import { siteConfig } from '@/config/site.config';
 export default function NotFound() {
   return (
     <>
-      <Header siteName={siteConfig.name} navLinks={siteNavLinks} />
+      <Header siteName={siteConfig.name} navLinks={siteNavLinks} searchHref="/search" cartHref="/cart" />
       <main>
         <h1>Pagina no encontrada</h1>
         <p>No hemos encontrado lo que buscabas.</p>

@@ -1,0 +1,137 @@
+.row {
+  display: grid;
+  grid-template-columns: 88px 1fr auto auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.imageWrapper {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--color-surface);
+  flex: 0 0 auto;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.name:hover {
+  text-decoration: underline;
+}
+
+.variants {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.unitPrice {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.remove {
+  align-self: flex-start;
+  margin-top: 0.35rem;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.remove:hover {
+  color: var(--color-text);
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-secondary);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.stepperButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: transparent;
+  color: var(--color-text);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.stepperButton:hover:not(:disabled) {
+  background-color: var(--color-background);
+}
+
+.stepperButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepperValue {
+  min-width: 28px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.lineTotal {
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-width: 80px;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 72px 1fr;
+    grid-template-areas:
+      'image details'
+      'stepper total';
+    row-gap: 0.75rem;
+  }
+
+  .imageWrapper {
+    grid-area: image;
+    width: 72px;
+    height: 72px;
+  }
+
+  .details {
+    grid-area: details;
+  }
+
+  .stepper {
+    grid-area: stepper;
+  }
+
+  .lineTotal {
+    grid-area: total;
+    text-align: right;
+  }
+}
