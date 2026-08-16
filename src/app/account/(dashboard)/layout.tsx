@@ -11,18 +11,16 @@ const accountNav = [
   { label: 'Lista de deseos', href: '/account/wishlist' },
 ];
 
-/**
- * LAYOUT DEL AREA PRIVADA: mantiene el Header/Footer de la tienda
- * (un usuario logueado sigue queriendo buscar, ver el carrito...) y
- * añade una navegacion secundaria propia de la cuenta.
- *
- * TODO: cuando haya autenticacion real, este layout es el sitio para
- * comprobar la sesion y redirigir a /account/login si no hay usuario.
- */
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header siteName={siteConfig.name} navLinks={siteNavLinks} searchHref="/search" cartHref="/cart" />
+      <Header
+        siteName={siteConfig.name}
+        navLinks={siteNavLinks}
+        searchHref="/search"
+        wishlistHref="/account/wishlist"
+        cartHref="/cart"
+      />
       <div>
         <nav>
           <ul>

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/types/product.types';
+import WishlistButton from '@/components/ui/WishlistButton/WishlistButton';
 import styles from './ProductCard.module.css';
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -23,13 +24,16 @@ export default function ProductCard({ product }: { product: Product }) {
     </>
   );
 
-  if (product.href) {
-    return (
-      <Link href={product.href} className={styles.card}>
-        {content}
-      </Link>
-    );
-  }
-
-  return <div className={styles.card}>{content}</div>;
+  return (
+    <div className={styles.cardWrapper}>
+      {product.href ? (
+        <Link href={product.href} className={styles.card}>
+          {content}
+        </Link>
+      ) : (
+        <div className={styles.card}>{content}</div>
+      )}
+      <WishlistButton product={product} />
+    </div>
+  );
 }

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { NavLink } from '@/types/section.types';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -18,7 +19,6 @@ interface HeaderProps {
   wishlistLabel?: string;
   cartHref?: string;
   cartLabel?: string;
-  /** Opcional: si no se pasa, se usa el numero real de items del CartContext. */
   cartCount?: number;
 }
 
@@ -37,8 +37,7 @@ export default function Header({
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { itemCount } = useCart();
-  // Si algun caller pasa cartCount explicito (ej. un storybook/test), se respeta;
-  // si no, se usa el contador real del carrito.
+  const { itemCount: wishlistItemCount } = useWishlist();
   const displayCartCount = cartCount ?? itemCount;
 
   useEffect(() => {
@@ -86,7 +85,7 @@ export default function Header({
             {loginLabel}
           </Link>
           <Link href={wishlistHref} className={`${styles.actionLink} ${styles.hideOnMobile}`}>
-            {wishlistLabel}
+            {wishlistLabel} ({wishlistItemCount})
           </Link>
           <Link href={cartHref} className={styles.actionLink}>
             {cartLabel} ({displayCartCount})
@@ -94,21 +93,9 @@ export default function Header({
         </div>
       </div>
 
-      <div
-        className={styles.overlay}
-        data-open={menuOpen}
-        onClick={() => setMenuOpen(false)}
-        aria-hidden="true"
-      />
+      <div className={styles.overlay} data-open={menuOpen} onClick={() => setMenuOpen(false)} aria-hidden="true" />
 
-      {/* Sin cabecera propia: el topbar de arriba hace esa funcion,
-          por eso el <aside> empieza directo con la navegacion. */}
-      <aside
-        id="site-sidebar"
-        className={styles.sidebar}
-        data-open={menuOpen}
-        aria-hidden={!menuOpen}
-      >
+      <aside id="site-sidebar" className={styles.sidebar} data-open={menuOpen} aria-hidden={!menuOpen}>
         <nav>
           <ul className={styles.sidebarList}>
             {navLinks.map((link) => (
@@ -126,7 +113,7 @@ export default function Header({
             {loginLabel}
           </a>
           <a href={wishlistHref} onClick={() => setMenuOpen(false)}>
-            {wishlistLabel}
+            {wishlistLabel} ({wishlistItemCount})
           </a>
         </div>
       </aside>
