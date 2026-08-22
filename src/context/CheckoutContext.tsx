@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useReducer, useState } from 'react';
-import type { CartItem } from './CartContext';
+import type { Order, ShippingAddress, ShippingMethod } from '@/types/order.types';
 
 const CHECKOUT_STORAGE_KEY = 'ecommerce-landing:checkout';
 
@@ -9,40 +9,11 @@ export interface ContactInfo {
   email: string;
 }
 
-export interface ShippingAddress {
-  fullName: string;
-  addressLine1: string;
-  addressLine2?: string;
-  city: string;
-  postalCode: string;
-  country: string;
-  phone?: string;
-}
-
-export interface ShippingMethod {
-  id: string;
-  label: string;
-  price: number;
-  priceFormatted: string;
-  etaLabel: string;
-}
-
-export interface CompletedOrder {
-  orderNumber: string;
-  email: string;
-  shippingAddress: ShippingAddress;
-  shippingMethod: ShippingMethod;
-  items: CartItem[];
-  subtotal: number;
-  shippingCost: number;
-  total: number;
-}
-
 interface CheckoutState {
   contactInfo: ContactInfo | null;
   shippingAddress: ShippingAddress | null;
   shippingMethod: ShippingMethod | null;
-  completedOrder: CompletedOrder | null;
+  completedOrder: Order | null;
 }
 
 const initialState: CheckoutState = {
@@ -57,7 +28,7 @@ type CheckoutAction =
   | { type: 'SET_CONTACT_INFO'; payload: ContactInfo }
   | { type: 'SET_SHIPPING_ADDRESS'; payload: ShippingAddress }
   | { type: 'SET_SHIPPING_METHOD'; payload: ShippingMethod }
-  | { type: 'COMPLETE_ORDER'; payload: CompletedOrder }
+  | { type: 'COMPLETE_ORDER'; payload: Order }
   | { type: 'RESET' };
 
 function checkoutReducer(state: CheckoutState, action: CheckoutAction): CheckoutState {
@@ -84,7 +55,7 @@ interface CheckoutContextValue extends CheckoutState {
   setContactInfo: (info: ContactInfo) => void;
   setShippingAddress: (address: ShippingAddress) => void;
   setShippingMethod: (method: ShippingMethod) => void;
-  completeOrder: (order: CompletedOrder) => void;
+  completeOrder: (order: Order) => void;
   resetCheckout: () => void;
 }
 
@@ -94,8 +65,6 @@ export function CheckoutProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(checkoutReducer, initialState);
   const [hydrated, setHydrated] = useState(false);
 
-  // Mismo patron que CartContext, pero con sessionStorage: los datos de un
-  // pedido a medias no deben sobrevivir a cerrar la pestaña.
   useEffect(() => {
     try {
       const raw = window.sessionStorage.getItem(CHECKOUT_STORAGE_KEY);

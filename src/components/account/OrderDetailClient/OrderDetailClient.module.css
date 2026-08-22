@@ -1,0 +1,136 @@
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4rem) clamp(1.5rem, 5vw, 2rem);
+  color: var(--color-text);
+}
+
+.back {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  margin-bottom: 1.5rem;
+}
+
+.back:hover {
+  color: var(--color-text);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  font-weight: 500;
+}
+
+.subtitle {
+  margin-top: 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.status {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.status[data-status='delivered'] {
+  color: var(--color-primary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.25rem;
+  border-radius: 12px;
+  background-color: var(--color-surface);
+}
+
+.cardLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.cardValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.cardSubvalue {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.items {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 1.5rem;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  font-size: 0.9rem;
+}
+
+.itemQuantity {
+  color: var(--color-text-muted);
+}
+
+.itemPrice {
+  font-weight: 500;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+}

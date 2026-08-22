@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useCheckout } from '@/context/CheckoutContext';
+import { useOrders } from '@/context/OrdersContext';
 import OrderSummary from '@/components/checkout/OrderSummary/OrderSummary';
 import styles from '@/components/checkout/checkoutForm.module.css';
 
@@ -16,6 +17,7 @@ export default function CheckoutPaymentPage() {
   const router = useRouter();
   const { items, subtotal, clearCart, hydrated: cartHydrated } = useCart();
   const { contactInfo, shippingAddress, shippingMethod, hydrated: checkoutHydrated, completeOrder } = useCheckout();
+  const { addOrder } = useOrders();
 
   const [cardName, setCardName] = useState('');
   const [cardNumber, setCardNumber] = useState('');
@@ -39,8 +41,6 @@ export default function CheckoutPaymentPage() {
 
   if (!cartHydrated || !checkoutHydrated || items.length === 0 || !contactInfo || !shippingAddress || !shippingMethod) return null;
 
-  // Copias locales: dentro de handleSubmit (otra función) TS pierde el
-  // narrowing de arriba, así que fijamos aquí que ya no son null.
   const confirmedContactInfo = contactInfo;
   const confirmedShippingAddress = shippingAddress;
   const confirmedShippingMethod = shippingMethod;
@@ -48,7 +48,7 @@ export default function CheckoutPaymentPage() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    completeOrder({
+    const order = {
       orderNumber: generateOrderNumber(),
       email: confirmedContactInfo.email,
       shippingAddress: confirmedShippingAddress,
@@ -57,7 +57,12 @@ export default function CheckoutPaymentPage() {
       subtotal,
       shippingCost: confirmedShippingMethod.price,
       total: subtotal + confirmedShippingMethod.price,
-    });
+      status: 'processing' as const,
+      createdAt: new Date().toISOString(),
+    };
+
+    completeOrder(order);
+    addOrder(order);
 
     clearCart();
     router.push('/checkout/success');

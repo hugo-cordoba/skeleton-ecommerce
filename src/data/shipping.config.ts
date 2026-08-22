@@ -1,4 +1,4 @@
-import type { ShippingMethod } from '@/context/CheckoutContext';
+import type { ShippingMethod } from '@/types/order.types';
 import { formatPrice } from '@/lib/currency';
 
 export const shippingMethods: ShippingMethod[] = [

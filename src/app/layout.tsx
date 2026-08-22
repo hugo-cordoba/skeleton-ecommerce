@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site.config';
 import { CartProvider } from '@/context/CartContext';
 import { WishlistProvider } from '@/context/WishlistContext';
+import { OrdersProvider } from '@/context/OrdersContext';
 import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
 
@@ -28,7 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={themeVars}>
         <AuthProvider>
           <CartProvider>
-            <WishlistProvider>{children}</WishlistProvider>
+            <WishlistProvider>
+              <OrdersProvider>{children}</OrdersProvider>
+            </WishlistProvider>
           </CartProvider>
         </AuthProvider>
       </body>
