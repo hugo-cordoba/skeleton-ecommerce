@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Header from '@/components/layout/Header/Header';
 import Footer from '@/components/layout/Footer/Footer';
+import AccountGuard from '@/components/account/AccountGuard/AccountGuard';
 import { siteNavLinks, footerContent } from '@/config/landing.config';
 import { siteConfig } from '@/config/site.config';
 
@@ -21,18 +22,20 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
         wishlistHref="/account/wishlist"
         cartHref="/cart"
       />
-      <div>
-        <nav>
-          <ul>
-            {accountNav.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href}>{item.label}</Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <main>{children}</main>
-      </div>
+      <AccountGuard>
+        <div>
+          <nav>
+            <ul>
+              {accountNav.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href}>{item.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <main>{children}</main>
+        </div>
+      </AccountGuard>
       <Footer siteName={siteConfig.name} navLinks={siteNavLinks} {...footerContent} />
     </>
   );

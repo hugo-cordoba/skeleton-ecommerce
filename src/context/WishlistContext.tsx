@@ -2,8 +2,9 @@
 
 import { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import type { Product } from '@/types/product.types';
+import { useAuth } from '@/context/AuthContext';
 
-const WISHLIST_STORAGE_KEY = 'ecommerce-landing:wishlist';
+const WISHLIST_STORAGE_PREFIX = 'ecommerce-landing:wishlist';
 
 export interface WishlistItem {
   id: string;
@@ -63,26 +64,39 @@ interface WishlistContextValue {
 const WishlistContext = createContext<WishlistContextValue | undefined>(undefined);
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
+  // Cada usuario (o "guest" sin sesion) tiene su propia wishlist, guardada
+  // bajo su propia clave. Asi el logout/login cambia la lista de verdad,
+  // en vez de compartir una unica clave global.
+  const { user, hydrated: authHydrated } = useAuth();
+  const storageKey = `${WISHLIST_STORAGE_PREFIX}:${user?.id ?? 'guest'}`;
+
   const [items, dispatch] = useReducer(wishlistReducer, []);
   const [hydrated, setHydrated] = useState(false);
 
+  // Se re-ejecuta cada vez que cambia storageKey (login/logout), no solo al montar.
   useEffect(() => {
+    // Esperamos a que Auth resuelva la sesion para no leer la clave de
+    // invitado por error durante el instante inicial de carga.
+    if (!authHydrated) return;
+
+    setHydrated(false);
     try {
-      const raw = window.localStorage.getItem(WISHLIST_STORAGE_KEY);
-      if (raw) {
-        dispatch({ type: 'HYDRATE', payload: JSON.parse(raw) as WishlistItem[] });
-      }
+      const raw = window.localStorage.getItem(storageKey);
+      dispatch({ type: 'HYDRATE', payload: raw ? (JSON.parse(raw) as WishlistItem[]) : [] });
     } catch {
       // localStorage corrupto, en modo privado, o no disponible: seguimos con wishlist vacia.
+      dispatch({ type: 'HYDRATE', payload: [] });
     } finally {
       setHydrated(true);
     }
-  }, []);
+  }, [authHydrated, storageKey]);
 
+  // Persiste cualquier cambio, pero solo despues de la hidratacion de ESTA
+  // clave, para no sobrescribir el storage del usuario anterior con [].
   useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(items));
-  }, [items, hydrated]);
+    window.localStorage.setItem(storageKey, JSON.stringify(items));
+  }, [items, hydrated, storageKey]);
 
   const idSet = useMemo(() => new Set(items.map((item) => item.id)), [items]);
 

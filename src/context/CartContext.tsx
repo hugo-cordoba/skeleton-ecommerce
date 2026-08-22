@@ -3,8 +3,9 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 import type { ProductDetail } from '@/types/product.types';
 import { parsePriceToNumber, formatPrice } from '@/lib/currency';
+import { useAuth } from '@/context/AuthContext';
 
-const CART_STORAGE_KEY = 'ecommerce-landing:cart';
+const CART_STORAGE_PREFIX = 'ecommerce-landing:cart';
 
 /**
  * Una linea del carrito. Una misma "linea" es un producto + una
@@ -105,29 +106,39 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  // Igual que la wishlist: cada usuario (o "guest" sin sesion) tiene su
+  // propio carrito, guardado bajo su propia clave. Login/logout cambia
+  // de carrito de verdad en vez de compartir una unica clave global.
+  const { user, hydrated: authHydrated } = useAuth();
+  const storageKey = `${CART_STORAGE_PREFIX}:${user?.id ?? 'guest'}`;
+
   const [items, dispatch] = useReducer(cartReducer, []);
   const [hydrated, setHydrated] = useState(false);
 
-  // Carga el carrito guardado en localStorage al montar (solo existe en cliente).
+  // Se re-ejecuta cada vez que cambia storageKey (login/logout), no solo al montar.
   useEffect(() => {
+    // Esperamos a que Auth resuelva la sesion para no leer la clave de
+    // invitado por error durante el instante inicial de carga.
+    if (!authHydrated) return;
+
+    setHydrated(false);
     try {
-      const raw = window.localStorage.getItem(CART_STORAGE_KEY);
-      if (raw) {
-        dispatch({ type: 'HYDRATE', payload: JSON.parse(raw) as CartItem[] });
-      }
+      const raw = window.localStorage.getItem(storageKey);
+      dispatch({ type: 'HYDRATE', payload: raw ? (JSON.parse(raw) as CartItem[]) : [] });
     } catch {
       // localStorage corrupto, en modo privado, o no disponible: seguimos con carrito vacio.
+      dispatch({ type: 'HYDRATE', payload: [] });
     } finally {
       setHydrated(true);
     }
-  }, []);
+  }, [authHydrated, storageKey]);
 
-  // Persiste cualquier cambio, pero solo despues de la hidratacion inicial
-  // para no sobrescribir el storage con [] antes de haber podido leerlo.
+  // Persiste cualquier cambio, pero solo despues de la hidratacion de ESTA
+  // clave, para no sobrescribir el storage del usuario anterior con [].
   useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-  }, [items, hydrated]);
+    window.localStorage.setItem(storageKey, JSON.stringify(items));
+  }, [items, hydrated, storageKey]);
 
   const addItem = (product: ProductDetail, quantity = 1, selectedVariants?: Record<string, string>) => {
     const id = buildCartLineId(product.id, selectedVariants);
@@ -179,7 +190,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     itemCount,
     subtotal,
     subtotalFormatted: formatPrice(subtotal),
-      hydrated,
+    hydrated,
     addItem,
     updateQuantity,
     removeItem,

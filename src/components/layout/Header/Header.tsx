@@ -6,6 +6,7 @@ import Link from 'next/link';
 import type { NavLink } from '@/types/section.types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useAuth } from '@/context/AuthContext';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -27,7 +28,7 @@ export default function Header({
   navLinks = [],
   searchHref = '#',
   searchLabel = 'Buscar',
-  loginHref = '#',
+  loginHref = '/account/login',
   loginLabel = 'Iniciar sesión',
   wishlistHref = '#',
   wishlistLabel = 'Wishlist',
@@ -38,6 +39,7 @@ export default function Header({
   const [menuOpen, setMenuOpen] = useState(false);
   const { itemCount } = useCart();
   const { itemCount: wishlistItemCount } = useWishlist();
+  const { user, hydrated: authHydrated, logout } = useAuth();
   const displayCartCount = cartCount ?? itemCount;
 
   useEffect(() => {
@@ -81,9 +83,22 @@ export default function Header({
           <Link href={searchHref} className={styles.actionLink}>
             {searchLabel}
           </Link>
-          <Link href={loginHref} className={`${styles.actionLink} ${styles.hideOnMobile}`}>
-            {loginLabel}
-          </Link>
+
+          {authHydrated && user ? (
+            <>
+              <Link href="/account" className={`${styles.actionLink} ${styles.hideOnMobile}`}>
+                {user.fullName.split(' ')[0]}
+              </Link>
+              <button type="button" onClick={logout} className={`${styles.actionButton} ${styles.hideOnMobile}`}>
+                Salir
+              </button>
+            </>
+          ) : (
+            <Link href={loginHref} className={`${styles.actionLink} ${styles.hideOnMobile}`}>
+              {loginLabel}
+            </Link>
+          )}
+
           <Link href={wishlistHref} className={`${styles.actionLink} ${styles.hideOnMobile}`}>
             {wishlistLabel} ({wishlistItemCount})
           </Link>
@@ -109,9 +124,27 @@ export default function Header({
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <a href={loginHref} onClick={() => setMenuOpen(false)}>
-            {loginLabel}
-          </a>
+          {authHydrated && user ? (
+            <>
+              <a href="/account" onClick={() => setMenuOpen(false)}>
+                {user.fullName.split(' ')[0]}
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  setMenuOpen(false);
+                }}
+                className={styles.sidebarLogout}
+              >
+                Salir
+              </button>
+            </>
+          ) : (
+            <a href={loginHref} onClick={() => setMenuOpen(false)}>
+              {loginLabel}
+            </a>
+          )}
           <a href={wishlistHref} onClick={() => setMenuOpen(false)}>
             {wishlistLabel} ({wishlistItemCount})
           </a>
