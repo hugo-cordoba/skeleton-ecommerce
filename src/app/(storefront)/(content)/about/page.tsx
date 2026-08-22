@@ -1,8 +1,11 @@
+import type { Metadata } from 'next';
+import ContentPage from '@/components/content/ContentPage/ContentPage';
+import { aboutContent } from '@/config/content.config';
+
+export const metadata: Metadata = {
+  title: aboutContent.title,
+};
+
 export default function AboutPage() {
-  return (
-    <div>
-      <h1>Sobre nosotros</h1>
-      {/* TODO: historia de marca, equipo, valores */}
-    </div>
-  );
+  return <ContentPage {...aboutContent} />;
 }

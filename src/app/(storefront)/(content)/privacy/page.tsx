@@ -1,8 +1,11 @@
+import type { Metadata } from 'next';
+import ContentPage from '@/components/content/ContentPage/ContentPage';
+import { privacyContent } from '@/config/content.config';
+
+export const metadata: Metadata = {
+  title: privacyContent.title,
+};
+
 export default function PrivacyPage() {
-  return (
-    <div>
-      <h1>Politica de privacidad</h1>
-      {/* TODO: texto legal de privacidad */}
-    </div>
-  );
+  return <ContentPage {...privacyContent} />;
 }

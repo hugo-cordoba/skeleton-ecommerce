@@ -1,8 +1,11 @@
+import type { Metadata } from 'next';
+import ContentPage from '@/components/content/ContentPage/ContentPage';
+import { termsContent } from '@/config/content.config';
+
+export const metadata: Metadata = {
+  title: termsContent.title,
+};
+
 export default function TermsPage() {
-  return (
-    <div>
-      <h1>Terminos y condiciones</h1>
-      {/* TODO: texto legal de terminos de uso */}
-    </div>
-  );
+  return <ContentPage {...termsContent} />;
 }

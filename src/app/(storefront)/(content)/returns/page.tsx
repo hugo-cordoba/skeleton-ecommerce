@@ -1,8 +1,11 @@
+import type { Metadata } from 'next';
+import ContentPage from '@/components/content/ContentPage/ContentPage';
+import { returnsContent } from '@/config/content.config';
+
+export const metadata: Metadata = {
+  title: returnsContent.title,
+};
+
 export default function ReturnsPage() {
-  return (
-    <div>
-      <h1>Devoluciones</h1>
-      {/* TODO: politica de devoluciones y cambios */}
-    </div>
-  );
+  return <ContentPage {...returnsContent} />;
 }

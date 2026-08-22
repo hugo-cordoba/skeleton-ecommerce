@@ -1,8 +1,11 @@
+import type { Metadata } from 'next';
+import ContentPage from '@/components/content/ContentPage/ContentPage';
+import { shippingPolicyContent } from '@/config/content.config';
+
+export const metadata: Metadata = {
+  title: shippingPolicyContent.title,
+};
+
 export default function ShippingPolicyPage() {
-  return (
-    <div>
-      <h1>Envios</h1>
-      {/* TODO: plazos, zonas y costes de envio */}
-    </div>
-  );
+  return <ContentPage {...shippingPolicyContent} />;
 }
