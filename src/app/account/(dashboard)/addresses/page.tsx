@@ -1,8 +1,6 @@
+// src/app/account/(dashboard)/addresses/page.tsx
+import AddressBookClient from '@/components/account/AddressBookClient/AddressBookClient';
+
 export default function AccountAddressesPage() {
-  return (
-    <div>
-      <h1>Mis direcciones</h1>
-      {/* TODO: listado de direcciones guardadas + formulario para añadir/editar */}
-    </div>
-  );
+  return <AddressBookClient />;
 }
