@@ -346,3 +346,21 @@ export function searchProducts(query: string): ProductDetail[] {
       product.categoryLabel.toLowerCase().includes(normalized)
   );
 }
+
+export const productBrands = [
+  { slug: 'marca-1', label: 'Marca 1' },
+  { slug: 'marca-2', label: 'Marca 2' },
+] as const;
+
+// Ejemplo: asigna brandSlug/brandLabel a algún producto mock existente
+// (edita el objeto de prod-01 y prod-02 en el array `products`):
+//   brandSlug: 'marca-1',
+//   brandLabel: 'Marca 1',
+
+export function getProductsByBrand(brandSlug: string): ProductDetail[] {
+  return products.filter((product) => product.brandSlug === brandSlug);
+}
+
+export function getBrandBySlug(slug: string) {
+  return productBrands.find((brand) => brand.slug === slug);
+}

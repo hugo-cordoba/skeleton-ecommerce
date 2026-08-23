@@ -4,6 +4,7 @@ import { CartProvider } from '@/context/CartContext';
 import { WishlistProvider } from '@/context/WishlistContext';
 import { OrdersProvider } from '@/context/OrdersContext';
 import { AuthProvider } from '@/context/AuthContext';
+import { AddressBookProvider } from '@/context/AddressBookContext';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -30,7 +31,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
-              <OrdersProvider>{children}</OrdersProvider>
+              <AddressBookProvider>
+                <OrdersProvider>{children}</OrdersProvider>
+              </AddressBookProvider>
             </WishlistProvider>
           </CartProvider>
         </AuthProvider>

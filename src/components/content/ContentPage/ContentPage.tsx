@@ -1,40 +1,63 @@
-import type { ContentPageData } from '@/types/content.types';
-import styles from './ContentPage.module.css';
+'use client';
 
-/**
- * Layout generico para paginas de texto: about, privacidad, terminos,
- * devoluciones y envios. Recibe el contenido tipado desde
- * `config/content.config.ts`, asi que anadir/editar una pagina de este
- * tipo es solo cuestion de editar ese fichero, sin tocar este componente.
- */
-export default function ContentPage({ title, intro, updatedAt, sections }: ContentPageData) {
-  return (
-    <article className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{title}</h1>
-        {intro && <p className={styles.intro}>{intro}</p>}
-        {updatedAt && <p className={styles.updatedAt}>Ultima actualizacion: {updatedAt}</p>}
-      </header>
+import { useState, type FormEvent } from 'react';
+import { sendContactMessage } from '@/lib/forms';
+import styles from './ContactForm.module.css';
 
-      <div className={styles.sections}>
-        {sections.map((section, index) => (
-          <section key={section.heading ?? index} className={styles.section}>
-            {section.heading && <h2 className={styles.sectionHeading}>{section.heading}</h2>}
-            {section.body.map((paragraph, paragraphIndex) => (
-              <p key={paragraphIndex} className={styles.paragraph}>
-                {paragraph}
-              </p>
-            ))}
-            {section.list && section.list.length > 0 && (
-              <ul className={styles.list}>
-                {section.list.map((item, itemIndex) => (
-                  <li key={itemIndex}>{item}</li>
-                ))}
-              </ul>
-            )}
-          </section>
-        ))}
+export default function ContactForm() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus('loading');
+    setError(null);
+
+    const result = await sendContactMessage({ name, email, message });
+    if (!result.ok) {
+      setStatus('error');
+      setError(result.error ?? 'No se ha podido enviar el mensaje.');
+      return;
+    }
+
+    setStatus('success');
+  }
+
+  if (status === 'success') {
+    return (
+      <div className={styles.confirmation} role="status">
+        <p>
+          Gracias, {name.split(' ')[0]}. Hemos recibido tu mensaje y te responderemos a {email} lo antes posible.
+        </p>
       </div>
-    </article>
+    );
+  }
+
+  return (
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <label className={styles.field}>
+        <span className={styles.label}>Nombre</span>
+        <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className={styles.input} />
+      </label>
+
+      <label className={styles.field}>
+        <span className={styles.label}>Email</span>
+        <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={styles.input} />
+      </label>
+
+      <label className={styles.field}>
+        <span className={styles.label}>Mensaje</span>
+        <textarea required rows={5} value={message} onChange={(e) => setMessage(e.target.value)} className={styles.textarea} />
+      </label>
+
+      {error && <p className={styles.error}>{error}</p>}
+
+      <button type="submit" className={styles.submit} disabled={status === 'loading'}>
+        {status === 'loading' ? 'Enviando...' : 'Enviar mensaje'}
+      </button>
+    </form>
   );
 }

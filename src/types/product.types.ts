@@ -66,3 +66,19 @@ export interface ProductDetail extends Product {
   /** IDs de productos relacionados a mostrar en el PDP. Si se omite, se calculan por categoria. */
   relatedIds?: string[];
 }
+
+export interface ProductDetail extends Product {
+  images: string[];
+  description: string;
+  shortDescription?: string;
+  categorySlug: string;
+  categoryLabel: string;
+  /** Marca del producto (opcional). Alimenta /brand/[slug] igual que categorySlug alimenta /category/[slug]. */
+  brandSlug?: string;
+  brandLabel?: string;
+  compareAtPrice?: string;
+  sku: string;
+  stock: number;
+  variants?: ProductVariantGroup[];
+  relatedIds?: string[];
+}

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { NavLink, SocialLink } from '@/types/section.types';
+import NewsletterForm from './NewsletterForm';
 import styles from './Footer.module.css';
 
 interface FooterProps {
@@ -90,18 +91,9 @@ export default function Footer({
             </div>
           )}
 
-          {/* Formulario decorativo: sin logica de envio, se conecta cuando haya backend */}
-          <form className={styles.newsletter}>
-            <input
-              type="email"
-              placeholder={newsletterPlaceholder}
-              className={styles.newsletterInput}
-              aria-label={newsletterPlaceholder}
-            />
-            <button type="submit" className={styles.newsletterButton} aria-label="Enviar">
-              &#8594;
-            </button>
-          </form>
+          {/* Subcomponente cliente: es el unico trozo interactivo de este
+              Footer, que sigue siendo Server Component en el resto. */}
+          <NewsletterForm placeholder={newsletterPlaceholder} />
         </div>
       </div>
 

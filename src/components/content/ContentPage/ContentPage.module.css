@@ -73,3 +73,8 @@
   flex-direction: column;
   gap: 0.4rem;
 }
+
+.error {
+  font-size: 0.8rem;
+  color: #c0392b;
+}

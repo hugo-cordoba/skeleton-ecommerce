@@ -151,6 +151,18 @@
   opacity: 0.75;
 }
 
+.newsletterFeedback {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.newsletterError {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #fca5a5;
+}
+
 @media (max-width: 800px) {
   .grid {
     grid-template-columns: 1fr;
