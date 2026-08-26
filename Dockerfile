@@ -7,12 +7,11 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 # --- builder: genera cliente Prisma y compila Next.js ---
-FROM base AS builder
+FROM builder AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Cuando añadas Prisma en la Fase 1:
-# RUN npx prisma generate
+RUN npx prisma generate
 RUN npm run build
 
 # --- runner: imagen final, mínima y sin herramientas de build ---
@@ -22,6 +21,13 @@ ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

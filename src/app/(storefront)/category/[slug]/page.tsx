@@ -20,17 +20,24 @@ interface CategoryPageProps {
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export function generateMetadata({ params }: CategoryPageProps): Metadata {
-  const category = productCategories.find((item) => item.slug === params.slug);
+export async function generateStaticParams() {
+  const categories = await productCategories();
+  return categories.map((category) => ({ slug: category.slug }));
+}
+
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+  const categories = await productCategories();
+  const category = categories.find((item) => item.slug === params.slug);
   if (!category) return {};
   return { title: category.label };
 }
 
-export default function CategoryPage({ params, searchParams }: CategoryPageProps) {
-  const category = productCategories.find((item) => item.slug === params.slug);
+export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
+  const categories = await productCategories();
+  const category = categories.find((item) => item.slug === params.slug);
   if (!category) notFound();
 
-  const allProducts = getProductsByCategory(category.slug);
+  const allProducts = await getProductsByCategory(category.slug);
   const filterGroups = getAvailableFilterGroups(allProducts);
   const priceRange = getPriceRange(allProducts);
 

@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getBrandBySlug, getProductsByBrand } from '@/data/products.config';
+import { getAllBrandSlugs, getBrandBySlug, getProductsByBrand } from '@/data/products.config';
+import { prisma } from '@/lib/prisma';
 import {
   filterAndSortProducts,
   getAvailableFilterGroups,
@@ -20,17 +21,22 @@ interface BrandPageProps {
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export function generateMetadata({ params }: BrandPageProps): Metadata {
-  const brand = getBrandBySlug(params.slug);
+export async function generateStaticParams() {
+  const slugs = await getAllBrandSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: BrandPageProps): Promise<Metadata> {
+  const brand = await getBrandBySlug(params.slug);
   if (!brand) return {};
   return { title: brand.label };
 }
 
-export default function BrandPage({ params, searchParams }: BrandPageProps) {
-  const brand = getBrandBySlug(params.slug);
+export default async function BrandPage({ params, searchParams }: BrandPageProps) {
+  const brand = await getBrandBySlug(params.slug);
   if (!brand) notFound();
 
-  const allProducts = getProductsByBrand(brand.slug);
+  const allProducts = await getProductsByBrand(brand.slug);
   const filterGroups = getAvailableFilterGroups(allProducts);
   const priceRange = getPriceRange(allProducts);
 

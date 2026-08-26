@@ -8,8 +8,8 @@ interface ProductPageProps {
   params: { slug: string };
 }
 
-export function generateMetadata({ params }: ProductPageProps): Metadata {
-  const product = getProductBySlug(params.slug);
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const product = await getProductBySlug(params.slug);
   if (!product) return {};
 
   return {
@@ -18,11 +18,11 @@ export function generateMetadata({ params }: ProductPageProps): Metadata {
   };
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
-  const product = getProductBySlug(params.slug);
+export default async function ProductPage({ params }: ProductPageProps) {
+  const product = await getProductBySlug(params.slug);
   if (!product) notFound();
 
-  const relatedProducts = getRelatedProducts(product);
+  const relatedProducts = await getRelatedProducts(product);
 
   return (
     <>

@@ -23,11 +23,11 @@ interface SearchPageProps {
   searchParams: { q?: string; [key: string]: string | string[] | undefined };
 }
 
-export default function SearchPage({ searchParams }: SearchPageProps) {
+export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = typeof searchParams.q === 'string' ? searchParams.q.trim() : '';
   const hasQuery = query.length > 0;
 
-  const allResults = hasQuery ? searchProducts(query) : [];
+  const allResults = hasQuery ? await searchProducts(query) : [];
   const filterGroups = getAvailableFilterGroups(allResults);
   const priceRange = getPriceRange(allResults);
 
