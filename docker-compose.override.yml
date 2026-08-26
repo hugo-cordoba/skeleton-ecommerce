@@ -5,8 +5,10 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - .:/app
-      - /app/node_modules   # evita que el bind mount pise node_modules del contenedor
+      - /app/node_modules
       - /app/.next
     environment:
       NODE_ENV: development
     command: npm run dev
+    ports:
+      - "3000:3000"
