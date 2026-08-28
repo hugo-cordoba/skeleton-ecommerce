@@ -5,6 +5,7 @@ import { WishlistProvider } from '@/context/WishlistContext';
 import { OrdersProvider } from '@/context/OrdersContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { AddressBookProvider } from '@/context/AddressBookContext';
+import AuthSessionProvider from '@/context/AuthSessionProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -28,15 +29,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <body style={themeVars}>
-        <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <AddressBookProvider>
-                <OrdersProvider>{children}</OrdersProvider>
-              </AddressBookProvider>
-            </WishlistProvider>
-          </CartProvider>
-        </AuthProvider>
+        <AuthSessionProvider>
+          <AuthProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <AddressBookProvider>
+                  <OrdersProvider>{children}</OrdersProvider>
+                </AddressBookProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </AuthProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

@@ -14,12 +14,12 @@ export default function AccountProfilePage() {
 
   if (!user) return null;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setFeedback(null);
 
-    const result = updateProfile({ fullName, email });
+    const result = await updateProfile({ fullName, email });
     if (!result.ok) {
       setError(result.error ?? 'No se han podido guardar los cambios.');
       return;

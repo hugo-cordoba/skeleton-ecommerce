@@ -14,11 +14,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
-    const result = login(email, password);
+    const result = await login(email, password);
     if (!result.ok) {
       setError(result.error ?? 'No se ha podido iniciar sesión.');
       return;

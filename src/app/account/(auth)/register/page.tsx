@@ -16,7 +16,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
@@ -25,7 +25,7 @@ export default function RegisterPage() {
       return;
     }
 
-    const result = register(fullName, email, password);
+    const result = await register(fullName, email, password);
     if (!result.ok) {
       setError(result.error ?? 'No se ha podido crear la cuenta.');
       return;
