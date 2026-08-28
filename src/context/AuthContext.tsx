@@ -3,6 +3,7 @@
 import { createContext, useContext } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { registerUser, updateProfileAction } from '@/lib/actions/auth.actions';
+import { mergeGuestCartIntoUserAction } from '@/lib/actions/cart.actions';
 
 export interface AuthUser {
   id: string;
@@ -37,6 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function login(email: string, password: string): Promise<AuthResult> {
     const result = await signIn('credentials', { email, password, redirect: false });
     if (result?.error) return { ok: false, error: 'Email o contraseña incorrectos.' };
+    await mergeGuestCartIntoUserAction();
     return { ok: true };
   }
 

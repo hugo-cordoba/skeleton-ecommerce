@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site.config';
+import { getCart } from '@/lib/actions/cart.actions';
 import { CartProvider } from '@/context/CartContext';
 import { WishlistProvider } from '@/context/WishlistContext';
 import { OrdersProvider } from '@/context/OrdersContext';
@@ -13,7 +14,9 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const initialCart = await getCart();
+
   const themeVars = {
     '--color-primary': siteConfig.colors.primary,
     '--color-primary-light': siteConfig.colors.primaryLight,
@@ -31,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={themeVars}>
         <AuthSessionProvider>
           <AuthProvider>
-            <CartProvider>
+            <CartProvider initialCart={initialCart}>
               <WishlistProvider>
                 <AddressBookProvider>
                   <OrdersProvider>{children}</OrdersProvider>
