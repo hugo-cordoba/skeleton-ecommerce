@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site.config';
 import { getCart } from '@/lib/actions/cart.actions';
+import { getWishlist } from '@/lib/actions/wishlist.actions';
 import { CartProvider } from '@/context/CartContext';
 import { WishlistProvider } from '@/context/WishlistContext';
 import { OrdersProvider } from '@/context/OrdersContext';
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const initialCart = await getCart();
+  const [initialCart, initialWishlist] = await Promise.all([getCart(), getWishlist()]);
 
   const themeVars = {
     '--color-primary': siteConfig.colors.primary,
@@ -35,7 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <AuthSessionProvider>
           <AuthProvider>
             <CartProvider initialCart={initialCart}>
-              <WishlistProvider>
+              <WishlistProvider initialItems={initialWishlist}>
                 <AddressBookProvider>
                   <OrdersProvider>{children}</OrdersProvider>
                 </AddressBookProvider>

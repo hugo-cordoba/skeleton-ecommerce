@@ -23,17 +23,27 @@ export const authOptions: NextAuthOptions = {
         const valid = await bcrypt.compare(credentials.password, user.password);
         if (!valid) return null;
 
-        return { id: user.id, name: user.fullName, email: user.email };
+        return { id: user.id, name: user.fullName, email: user.email, role: user.role };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      // `user` solo llega en el login inicial; el resto de veces el rol
+      // ya vive en el token. Si cambias el rol de alguien en BD, no se
+      // reflejará hasta que vuelva a iniciar sesión (limitación normal de
+      // JWT sessions; se puede forzar con session.update() si hace falta).
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) session.user.id = token.id;
+      if (session.user) {
+        session.user.id = token.id;
+        session.user.role = token.role;
+      }
       return session;
     },
   },

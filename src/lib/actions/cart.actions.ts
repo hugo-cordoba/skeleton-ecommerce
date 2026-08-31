@@ -170,5 +170,7 @@ export async function mergeGuestCartIntoUserAction(): Promise<void> {
     }
   }
 
-  clearGuestId();
+  export async function clearGuestSessionAction(): Promise<void> {
+    clearGuestId();
+  }
 }

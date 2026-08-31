@@ -1,55 +1,11 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react';
-import type { Product } from '@/types/product.types';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import type { Product } from '@/types/product.types';
+import { clearWishlistAction, getWishlist, removeFromWishlistAction, toggleWishlistAction } from '@/lib/actions/wishlist.actions';
 
-const WISHLIST_STORAGE_PREFIX = 'ecommerce-landing:wishlist';
-
-export interface WishlistItem {
-  id: string;
-  slug: string;
-  name: string;
-  price: string;
-  image: string;
-  href?: string;
-  badge?: string;
-}
-
-type WishlistAction =
-  | { type: 'HYDRATE'; payload: WishlistItem[] }
-  | { type: 'ADD_ITEM'; payload: WishlistItem }
-  | { type: 'REMOVE_ITEM'; payload: { id: string } }
-  | { type: 'CLEAR' };
-
-function wishlistReducer(state: WishlistItem[], action: WishlistAction): WishlistItem[] {
-  switch (action.type) {
-    case 'HYDRATE':
-      return action.payload;
-    case 'ADD_ITEM':
-      if (state.some((item) => item.id === action.payload.id)) return state;
-      return [...state, action.payload];
-    case 'REMOVE_ITEM':
-      return state.filter((item) => item.id !== action.payload.id);
-    case 'CLEAR':
-      return [];
-    default:
-      return state;
-  }
-}
-
-/** Solo guardamos lo minimo necesario para pintar la wishlist, no el ProductDetail completo. */
-function toWishlistItem(product: Product): WishlistItem {
-  return {
-    id: product.id,
-    slug: product.slug,
-    name: product.name,
-    price: product.price,
-    image: product.image,
-    href: product.href,
-    badge: product.badge,
-  };
-}
+export type WishlistItem = Product;
 
 interface WishlistContextValue {
   items: WishlistItem[];
@@ -63,60 +19,62 @@ interface WishlistContextValue {
 
 const WishlistContext = createContext<WishlistContextValue | undefined>(undefined);
 
-export function WishlistProvider({ children }: { children: React.ReactNode }) {
-  // Cada usuario (o "guest" sin sesion) tiene su propia wishlist, guardada
-  // bajo su propia clave. Asi el logout/login cambia la lista de verdad,
-  // en vez de compartir una unica clave global.
+/** `initialItems` llega resuelto desde app/layout.tsx, igual que initialCart en CartProvider. */
+export function WishlistProvider({
+  children,
+  initialItems = [],
+}: {
+  children: React.ReactNode;
+  initialItems?: WishlistItem[];
+}) {
   const { user, hydrated: authHydrated } = useAuth();
-  const storageKey = `${WISHLIST_STORAGE_PREFIX}:${user?.id ?? 'guest'}`;
+  const [items, setItems] = useState<WishlistItem[]>(initialItems);
+  const [, startTransition] = useTransition();
+  const isFirstRender = useRef(true);
 
-  const [items, dispatch] = useReducer(wishlistReducer, []);
-  const [hydrated, setHydrated] = useState(false);
-
-  // Se re-ejecuta cada vez que cambia storageKey (login/logout), no solo al montar.
   useEffect(() => {
-    // Esperamos a que Auth resuelva la sesion para no leer la clave de
-    // invitado por error durante el instante inicial de carga.
-    if (!authHydrated) return;
-
-    setHydrated(false);
-    try {
-      const raw = window.localStorage.getItem(storageKey);
-      dispatch({ type: 'HYDRATE', payload: raw ? (JSON.parse(raw) as WishlistItem[]) : [] });
-    } catch {
-      // localStorage corrupto, en modo privado, o no disponible: seguimos con wishlist vacia.
-      dispatch({ type: 'HYDRATE', payload: [] });
-    } finally {
-      setHydrated(true);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
-  }, [authHydrated, storageKey]);
-
-  // Persiste cualquier cambio, pero solo despues de la hidratacion de ESTA
-  // clave, para no sobrescribir el storage del usuario anterior con [].
-  useEffect(() => {
-    if (!hydrated) return;
-    window.localStorage.setItem(storageKey, JSON.stringify(items));
-  }, [items, hydrated, storageKey]);
+    if (!authHydrated) return;
+    getWishlist().then(setItems);
+  }, [user?.id, authHydrated]);
 
   const idSet = useMemo(() => new Set(items.map((item) => item.id)), [items]);
-
   const isInWishlist = (id: string) => idSet.has(id);
 
-  const toggleItem = (product: Product) => {
-    if (idSet.has(product.id)) {
-      dispatch({ type: 'REMOVE_ITEM', payload: { id: product.id } });
-    } else {
-      dispatch({ type: 'ADD_ITEM', payload: toWishlistItem(product) });
-    }
-  };
+  function toggleItem(product: Product) {
+    const wasInWishlist = idSet.has(product.id);
+    setItems((prev) => (wasInWishlist ? prev.filter((item) => item.id !== product.id) : [product, ...prev]));
 
-  const removeItem = (id: string) => dispatch({ type: 'REMOVE_ITEM', payload: { id } });
-  const clearWishlist = () => dispatch({ type: 'CLEAR' });
+    startTransition(async () => {
+      try {
+        setItems(await toggleWishlistAction(product.id));
+      } catch (error) {
+        console.error('No se pudo actualizar la lista de deseos:', error);
+      }
+    });
+  }
+
+  function removeItem(id: string) {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+    startTransition(async () => {
+      setItems(await removeFromWishlistAction(id));
+    });
+  }
+
+  function clearWishlist() {
+    setItems([]);
+    startTransition(async () => {
+      setItems(await clearWishlistAction());
+    });
+  }
 
   const value: WishlistContextValue = {
     items,
     itemCount: items.length,
-    hydrated,
+    hydrated: true,
     isInWishlist,
     toggleItem,
     removeItem,
@@ -128,8 +86,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
 export function useWishlist(): WishlistContextValue {
   const context = useContext(WishlistContext);
-  if (!context) {
-    throw new Error('useWishlist debe usarse dentro de un <WishlistProvider>.');
-  }
+  if (!context) throw new Error('useWishlist debe usarse dentro de un <WishlistProvider>.');
   return context;
 }
