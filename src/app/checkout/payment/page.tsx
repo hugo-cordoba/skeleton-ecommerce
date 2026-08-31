@@ -6,12 +6,9 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { useCheckout } from '@/context/CheckoutContext';
 import { useOrders } from '@/context/OrdersContext';
+import { createOrderAction } from '@/lib/actions/order.actions';
 import OrderSummary from '@/components/checkout/OrderSummary/OrderSummary';
 import styles from '@/components/checkout/checkoutForm.module.css';
-
-function generateOrderNumber(): string {
-  return `ORD-${Date.now().toString(36).toUpperCase()}`;
-}
 
 export default function CheckoutPaymentPage() {
   const router = useRouter();
@@ -23,6 +20,8 @@ export default function CheckoutPaymentPage() {
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!cartHydrated || !checkoutHydrated) return;
@@ -45,27 +44,29 @@ export default function CheckoutPaymentPage() {
   const confirmedShippingAddress = shippingAddress;
   const confirmedShippingMethod = shippingMethod;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSubmitError(null);
+    setIsSubmitting(true);
 
-    const order = {
-      orderNumber: generateOrderNumber(),
-      email: confirmedContactInfo.email,
-      shippingAddress: confirmedShippingAddress,
-      shippingMethod: confirmedShippingMethod,
-      items,
-      subtotal,
-      shippingCost: confirmedShippingMethod.price,
-      total: subtotal + confirmedShippingMethod.price,
-      status: 'processing' as const,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const order = await createOrderAction({
+        email: confirmedContactInfo.email,
+        shippingAddress: confirmedShippingAddress,
+        shippingMethod: confirmedShippingMethod,
+        items,
+        subtotal,
+      });
 
-    completeOrder(order);
-    addOrder(order);
-
-    clearCart();
-    router.push('/checkout/success');
+      completeOrder(order);
+      addOrder(order);
+      clearCart();
+      router.push('/checkout/success');
+    } catch (error) {
+      console.error('No se pudo crear el pedido:', error);
+      setSubmitError('No se ha podido confirmar el pedido. Inténtalo de nuevo.');
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -131,8 +132,10 @@ export default function CheckoutPaymentPage() {
           </div>
         </div>
 
-        <button type="submit" className={styles.submit}>
-          Confirmar pedido
+        {submitError && <p style={{ color: '#c0392b', fontSize: '0.85rem' }}>{submitError}</p>}
+
+        <button type="submit" className={styles.submit} disabled={isSubmitting}>
+          {isSubmitting ? 'Confirmando...' : 'Confirmar pedido'}
         </button>
       </form>
 

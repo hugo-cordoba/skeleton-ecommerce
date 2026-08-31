@@ -1,10 +1,12 @@
-import type { CartItem } from '@/context/CartContext';
+import type { ShippingAddress as _ShippingAddress } from './order.types';
 
 /**
- * Tipos de pedido, compartidos entre el checkout (que genera el pedido)
- * y el historial (que lo persiste y lo muestra). Antes vivian dentro de
- * CheckoutContext; se sacan aqui para que OrdersContext los use sin
- * depender del contexto de checkout.
+ * Tipos de pedido, compartidos entre el checkout (que genera el pedido),
+ * el historial (que lo persiste y lo muestra) y las server actions que
+ * hablan con Prisma. Antes `items` reutilizaba el tipo `CartItem` del
+ * carrito; ahora es su propio tipo, alineado con el modelo `OrderItem`
+ * de Prisma (name/image/unitPrice ya son una "foto" del momento de la
+ * compra, no dependen del carrito).
  */
 
 export interface ShippingAddress {
@@ -25,19 +27,28 @@ export interface ShippingMethod {
   etaLabel: string;
 }
 
-/** Estado del pedido. Simulado por ahora (no hay backend/logistica real). */
+/** Estado del pedido, en minúsculas en el cliente; se mapea desde/hacia el enum OrderStatus de Prisma. */
 export type OrderStatus = 'processing' | 'shipped' | 'delivered';
+
+export interface OrderItem {
+  id: string;
+  productId: string;
+  name: string;
+  image: string;
+  unitPrice: number;
+  quantity: number;
+  selectedVariants?: Record<string, string>;
+}
 
 export interface Order {
   orderNumber: string;
   email: string;
   shippingAddress: ShippingAddress;
   shippingMethod: ShippingMethod;
-  items: CartItem[];
+  items: OrderItem[];
   subtotal: number;
   shippingCost: number;
   total: number;
   status: OrderStatus;
-  /** ISO string (Date.toISOString()), para guardarlo tal cual en JSON/localStorage. */
   createdAt: string;
 }

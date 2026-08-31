@@ -136,6 +136,7 @@ model Order {
   orderNumber      String      @unique
   userId           String?
   user             User?       @relation(fields: [userId], references: [id])
+  guestId          String?
   email            String
 
   shippingFullName String
@@ -157,6 +158,9 @@ model Order {
   items            OrderItem[]
 
   createdAt        DateTime    @default(now())
+
+  @@index([userId])
+  @@index([guestId])
 }
 
 enum OrderStatus {

@@ -1,26 +1,9 @@
 'use client';
 
-import { createContext, useContext, useEffect, useReducer, useState } from 'react';
-import type { Order } from '@/types/order.types';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-
-const ORDERS_STORAGE_PREFIX = 'ecommerce-landing:orders';
-
-type OrdersAction =
-  | { type: 'HYDRATE'; payload: Order[] }
-  | { type: 'ADD_ORDER'; payload: Order };
-
-function ordersReducer(state: Order[], action: OrdersAction): Order[] {
-  switch (action.type) {
-    case 'HYDRATE':
-      return action.payload;
-    case 'ADD_ORDER':
-      // Mas reciente primero, para que el listado no necesite ordenar.
-      return [action.payload, ...state];
-    default:
-      return state;
-  }
-}
+import type { Order } from '@/types/order.types';
+import { getOrders } from '@/lib/actions/order.actions';
 
 interface OrdersContextValue {
   orders: Order[];
@@ -31,41 +14,41 @@ interface OrdersContextValue {
 
 const OrdersContext = createContext<OrdersContextValue | undefined>(undefined);
 
-export function OrdersProvider({ children }: { children: React.ReactNode }) {
-  // Igual que Cart/Wishlist: cada usuario (o "guest" sin sesion) tiene su
-  // propio historial, guardado bajo su propia clave.
+/** `initialOrders` llega resuelto desde app/layout.tsx, igual que initialCart/initialItems en Cart/WishlistProvider. */
+export function OrdersProvider({
+  children,
+  initialOrders = [],
+}: {
+  children: React.ReactNode;
+  initialOrders?: Order[];
+}) {
   const { user, hydrated: authHydrated } = useAuth();
-  const storageKey = `${ORDERS_STORAGE_PREFIX}:${user?.id ?? 'guest'}`;
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const isFirstRender = useRef(true);
 
-  const [orders, dispatch] = useReducer(ordersReducer, []);
-  const [hydrated, setHydrated] = useState(false);
-
+  // Igual que Cart/Wishlist: solo se vuelve a pedir el historial cuando
+  // cambia la identidad (login/logout), para reflejar el merge de
+  // pedidos de invitado -> cuenta.
   useEffect(() => {
-    if (!authHydrated) return;
-
-    setHydrated(false);
-    try {
-      const raw = window.localStorage.getItem(storageKey);
-      dispatch({ type: 'HYDRATE', payload: raw ? (JSON.parse(raw) as Order[]) : [] });
-    } catch {
-      dispatch({ type: 'HYDRATE', payload: [] });
-    } finally {
-      setHydrated(true);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
-  }, [authHydrated, storageKey]);
+    if (!authHydrated) return;
+    getOrders().then(setOrders);
+  }, [user?.id, authHydrated]);
 
-  useEffect(() => {
-    if (!hydrated) return;
-    window.localStorage.setItem(storageKey, JSON.stringify(orders));
-  }, [orders, hydrated, storageKey]);
+  function addOrder(order: Order) {
+    // El pedido ya se creó en BD (createOrderAction); esto solo lo
+    // refleja de inmediato en el estado local sin esperar un refetch.
+    setOrders((prev) => [order, ...prev]);
+  }
 
-  const addOrder = (order: Order) => {
-    dispatch({ type: 'ADD_ORDER', payload: order });
-  };
+  function getOrder(orderNumber: string) {
+    return orders.find((order) => order.orderNumber === orderNumber);
+  }
 
-  const getOrder = (orderNumber: string) => orders.find((order) => order.orderNumber === orderNumber);
-
-  const value: OrdersContextValue = { orders, hydrated, addOrder, getOrder };
+  const value: OrdersContextValue = { orders, hydrated: true, addOrder, getOrder };
 
   return <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>;
 }

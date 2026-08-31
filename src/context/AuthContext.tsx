@@ -6,6 +6,7 @@ import type { Role } from '@prisma/client';
 import { registerUser, updateProfileAction } from '@/lib/actions/auth.actions';
 import { mergeGuestCartIntoUserAction, clearGuestSessionAction } from '@/lib/actions/cart.actions';
 import { mergeGuestWishlistIntoUserAction } from '@/lib/actions/wishlist.actions';
+import { mergeGuestOrdersIntoUserAction } from '@/lib/actions/order.actions';
 
 export interface AuthUser {
   id: string;
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     await mergeGuestCartIntoUserAction();
     await mergeGuestWishlistIntoUserAction();
+    await mergeGuestOrdersIntoUserAction();
     await clearGuestSessionAction();
 
     return { ok: true };
