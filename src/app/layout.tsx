@@ -10,6 +10,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { AddressBookProvider } from '@/context/AddressBookContext';
 import AuthSessionProvider from '@/context/AuthSessionProvider';
 import './globals.css';
+import '@/lib/env';
 
 export const metadata: Metadata = {
   title: siteConfig.name,

@@ -169,8 +169,8 @@ export async function mergeGuestCartIntoUserAction(): Promise<void> {
       await prisma.cartItem.update({ where: { id: guestItem.id }, data: { userId, guestId: null } });
     }
   }
+}
 
-  export async function clearGuestSessionAction(): Promise<void> {
-    clearGuestId();
-  }
+export async function clearGuestSessionAction(): Promise<void> {
+  clearGuestId();
 }

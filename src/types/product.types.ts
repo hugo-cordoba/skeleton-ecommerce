@@ -46,26 +46,6 @@ export interface ProductVariantGroup {
  * que un `ProductDetail` tambien sirve en cualquier sitio donde se
  * espere un `Product` (ProductCard, ProductCarousel, FeatureBanner).
  */
-export interface ProductDetail extends Product {
-  /** Galeria completa del PDP; normalmente incluye `image` como primera foto. */
-  images: string[];
-  description: string;
-  /** Version corta para listados/tarjetas donde no cabe la descripcion larga. */
-  shortDescription?: string;
-  categorySlug: string;
-  categoryLabel: string;
-  /**
-   * Precio "antes de descuento". Si existe y es mayor que `price`,
-   * la UI puede usarlo para mostrar el tachado + badge de oferta.
-   */
-  compareAtPrice?: string;
-  sku: string;
-  /** Unidades disponibles. 0 = agotado (usar el helper `isInStock`). */
-  stock: number;
-  variants?: ProductVariantGroup[];
-  /** IDs de productos relacionados a mostrar en el PDP. Si se omite, se calculan por categoria. */
-  relatedIds?: string[];
-}
 
 export interface ProductDetail extends Product {
   images: string[];
@@ -73,7 +53,6 @@ export interface ProductDetail extends Product {
   shortDescription?: string;
   categorySlug: string;
   categoryLabel: string;
-  /** Marca del producto (opcional). Alimenta /brand/[slug] igual que categorySlug alimenta /category/[slug]. */
   brandSlug?: string;
   brandLabel?: string;
   compareAtPrice?: string;
