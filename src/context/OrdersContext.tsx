@@ -35,7 +35,7 @@ export function OrdersProvider({
       return;
     }
     if (!authHydrated) return;
-    getOrders().then(setOrders);
+    getOrders().then((result) => setOrders(result || []));
   }, [user?.id, authHydrated]);
 
   function addOrder(order: Order) {

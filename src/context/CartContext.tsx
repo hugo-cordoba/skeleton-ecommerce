@@ -59,7 +59,7 @@ export function CartProvider({
       return;
     }
     if (!authHydrated) return;
-    getCart().then(setCart);
+    getCart().then((result) => setCart(result || EMPTY_CART));
   }, [user?.id, authHydrated]);
 
   function addItem(product: ProductDetail, quantity = 1, selectedVariants?: Record<string, string>) {

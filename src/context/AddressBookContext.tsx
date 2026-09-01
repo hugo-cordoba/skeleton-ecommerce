@@ -35,7 +35,7 @@ export function AddressBookProvider({ children }: { children: React.ReactNode })
     if (!authHydrated) return;
     setHydrated(false);
     getAddresses()
-      .then(setAddresses)
+      .then((result) => setAddresses(result || []))
       .finally(() => setHydrated(true));
   }, [authHydrated, user?.id]);
 

@@ -38,7 +38,7 @@ export function WishlistProvider({
       return;
     }
     if (!authHydrated) return;
-    getWishlist().then(setItems);
+    getWishlist().then((result) => setItems(result || []));
   }, [user?.id, authHydrated]);
 
   const idSet = useMemo(() => new Set(items.map((item) => item.id)), [items]);

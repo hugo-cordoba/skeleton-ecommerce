@@ -6,7 +6,7 @@ import type { NavLink } from '@/types/section.types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
-import LoginSidebar from '@/components/auth/LoginSidebar/LoginSidebar';
+import AuthSidebar from '@/components/auth/AuthSidebar/AuthSidebar';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -35,36 +35,57 @@ export default function Header({
   cartCount,
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   const { itemCount } = useCart();
   const { itemCount: wishlistItemCount } = useWishlist();
   const { user, hydrated: authHydrated, logout } = useAuth();
   const displayCartCount = cartCount ?? itemCount;
 
   // Un solo efecto controla el scroll del body para los dos paneles
-  // (menu y login), asi evitamos que se pisen si alguna vez coinciden.
+  // (menu y auth), asi evitamos que se pisen si alguna vez coinciden.
   useEffect(() => {
-    document.body.style.overflow = menuOpen || loginOpen ? 'hidden' : '';
+    document.body.style.overflow = menuOpen || authOpen ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
     };
-  }, [menuOpen, loginOpen]);
+  }, [menuOpen, authOpen]);
 
   useEffect(() => {
-    if (!menuOpen && !loginOpen) return;
+    if (!menuOpen && !authOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setMenuOpen(false);
-        setLoginOpen(false);
+        setAuthOpen(false);
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [menuOpen, loginOpen]);
+  }, [menuOpen, authOpen]);
 
-  function openLogin() {
+  // Si llegamos aqui redirigidos por AccountGuard o por el middleware de
+  // next-auth (al entrar a una zona protegida sin sesion), abrimos el
+  // sidebar de acceso automaticamente en vez de mandar a una pagina aparte.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('authRequired') === '1' || params.has('callbackUrl')) {
+      setAuthOpen(true);
+      params.delete('authRequired');
+      const nextSearch = params.toString();
+      window.history.replaceState({}, '', window.location.pathname + (nextSearch ? `?${nextSearch}` : ''));
+    }
+  }, []);
+
+  function openAuth() {
     setMenuOpen(false);
-    setLoginOpen(true);
+    setAuthOpen(true);
+  }
+
+  function handleWishlistClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (!user && authHydrated) {
+      e.preventDefault();
+      openAuth();
+    }
   }
 
   return (
@@ -76,7 +97,7 @@ export default function Header({
             className={styles.menuButton}
             data-open={menuOpen}
             onClick={() => {
-              setLoginOpen(false);
+              setAuthOpen(false);
               setMenuOpen((open) => !open);
             }}
             aria-expanded={menuOpen}
@@ -106,12 +127,16 @@ export default function Header({
               </button>
             </>
           ) : (
-            <button type="button" onClick={openLogin} className={`${styles.actionButton} ${styles.hideOnMobile}`}>
+            <button type="button" onClick={openAuth} className={`${styles.actionButton} ${styles.hideOnMobile}`}>
               {loginLabel}
             </button>
           )}
 
-          <Link href={wishlistHref} className={`${styles.actionLink} ${styles.hideOnMobile}`}>
+          <Link
+            href={wishlistHref}
+            className={`${styles.actionLink} ${styles.hideOnMobile}`}
+            onClick={handleWishlistClick}
+          >
             {wishlistLabel} ({wishlistItemCount})
           </Link>
           <Link href={cartHref} className={styles.actionLink}>
@@ -153,17 +178,25 @@ export default function Header({
               </button>
             </>
           ) : (
-            <button type="button" className={styles.sidebarLogout} onClick={openLogin}>
+            <button type="button" className={styles.sidebarLogout} onClick={openAuth}>
               {loginLabel}
             </button>
           )}
-          <a href={wishlistHref} onClick={() => setMenuOpen(false)}>
+          <a
+            href={wishlistHref}
+            onClick={(e) => {
+              handleWishlistClick(e);
+              if (user || !authHydrated) {
+                setMenuOpen(false);
+              }
+            }}
+          >
             {wishlistLabel} ({wishlistItemCount})
           </a>
         </div>
       </aside>
 
-      <LoginSidebar isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
+      <AuthSidebar isOpen={authOpen} onClose={() => setAuthOpen(false)} />
     </header>
   );
 }

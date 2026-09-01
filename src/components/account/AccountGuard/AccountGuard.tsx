@@ -10,7 +10,9 @@ export default function AccountGuard({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!user) router.replace('/account/login');
+    // Ya no existe una pagina de login dedicada: mandamos a home y el
+    // Header abre el sidebar de acceso automaticamente (ver Header.tsx).
+    if (!user) router.replace('/?authRequired=1');
   }, [hydrated, user, router]);
 
   // Evita parpadear contenido protegido antes de confirmar que no hay sesión.
