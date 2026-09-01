@@ -1,9 +1,6 @@
 import Stripe from 'stripe';
+import { env } from '@/lib/env';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Falta STRIPE_SECRET_KEY en las variables de entorno.');
-}
-
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+export const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
   typescript: true,
 });
