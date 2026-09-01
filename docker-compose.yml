@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@pg-shared:5432/${DB_NAME}
       NODE_ENV: production
