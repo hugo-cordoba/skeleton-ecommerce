@@ -22,8 +22,12 @@ interface BrandPageProps {
 }
 
 export async function generateStaticParams() {
-  const slugs = await getAllBrandSlugs();
-  return slugs.map((slug) => ({ slug }));
+  try {
+    const slugs = await getAllBrandSlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: BrandPageProps): Promise<Metadata> {

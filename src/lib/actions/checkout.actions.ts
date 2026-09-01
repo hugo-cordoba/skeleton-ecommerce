@@ -48,7 +48,7 @@ export async function createCheckoutSessionAction(
     lineItems.push({
       price_data: {
         currency: 'eur',
-        product_data: { name: `Envío: ${shippingMethod.label}` },
+        product_data: { name: `Envío: ${shippingMethod.label}`, images: [] },
         unit_amount: Math.round(shippingMethod.price * 100),
       },
       quantity: 1,

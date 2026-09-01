@@ -27,6 +27,7 @@ export default function CheckoutPaymentPage() {
   if (!cartHydrated || !checkoutHydrated || items.length === 0 || !contactInfo || !shippingAddress || !shippingMethod) return null;
 
   async function handleCheckout() {
+    if (!contactInfo || !shippingAddress || !shippingMethod) return;
     setSubmitError(null);
     setIsRedirecting(true);
     try {
