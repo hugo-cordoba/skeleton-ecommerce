@@ -35,14 +35,24 @@ export async function createCheckoutSessionAction(
   const shippingMethod = shippingMethods.find((method) => method.id === input.shippingMethodId);
   if (!shippingMethod) throw new Error('Método de envío no válido.');
 
-  const lineItems = cartItems.map((item) => ({
-    price_data: {
-      currency: 'eur',
-      product_data: { name: item.product.name, images: [item.product.image] },
-      unit_amount: Math.round(parsePriceToNumber(item.product.price) * 100),
-    },
-    quantity: item.quantity,
-  }));
+  const lineItems = cartItems.map((item) => {
+    // Stripe requiere URLs absolutas para las imágenes
+    const imageUrl = item.product.image.startsWith('http')
+      ? item.product.image
+      : `${process.env.NEXTAUTH_URL}${item.product.image}`;
+
+    return {
+      price_data: {
+        currency: 'eur',
+        product_data: {
+          name: item.product.name,
+          images: [imageUrl]
+        },
+        unit_amount: Math.round(parsePriceToNumber(item.product.price) * 100),
+      },
+      quantity: item.quantity,
+    };
+  });
 
   if (shippingMethod.price > 0) {
     lineItems.push({
