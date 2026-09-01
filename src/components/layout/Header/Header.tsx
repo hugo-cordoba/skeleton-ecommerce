@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { NavLink } from '@/types/section.types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
+import LoginSidebar from '@/components/auth/LoginSidebar/LoginSidebar';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -14,7 +14,6 @@ interface HeaderProps {
   navLinks?: NavLink[];
   searchHref?: string;
   searchLabel?: string;
-  loginHref?: string;
   loginLabel?: string;
   wishlistHref?: string;
   wishlistLabel?: string;
@@ -28,7 +27,6 @@ export default function Header({
   navLinks = [],
   searchHref = '#',
   searchLabel = 'Buscar',
-  loginHref = '/account/login',
   loginLabel = 'Iniciar sesión',
   wishlistHref = '#',
   wishlistLabel = 'Wishlist',
@@ -37,26 +35,37 @@ export default function Header({
   cartCount,
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
   const { itemCount } = useCart();
   const { itemCount: wishlistItemCount } = useWishlist();
   const { user, hydrated: authHydrated, logout } = useAuth();
   const displayCartCount = cartCount ?? itemCount;
 
+  // Un solo efecto controla el scroll del body para los dos paneles
+  // (menu y login), asi evitamos que se pisen si alguna vez coinciden.
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    document.body.style.overflow = menuOpen || loginOpen ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
     };
-  }, [menuOpen]);
+  }, [menuOpen, loginOpen]);
 
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!menuOpen && !loginOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMenuOpen(false);
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+        setLoginOpen(false);
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [menuOpen]);
+  }, [menuOpen, loginOpen]);
+
+  function openLogin() {
+    setMenuOpen(false);
+    setLoginOpen(true);
+  }
 
   return (
     <header className={styles.header}>
@@ -66,7 +75,10 @@ export default function Header({
             type="button"
             className={styles.menuButton}
             data-open={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
+            onClick={() => {
+              setLoginOpen(false);
+              setMenuOpen((open) => !open);
+            }}
             aria-expanded={menuOpen}
             aria-controls="site-sidebar"
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -94,9 +106,9 @@ export default function Header({
               </button>
             </>
           ) : (
-            <Link href={loginHref} className={`${styles.actionLink} ${styles.hideOnMobile}`}>
+            <button type="button" onClick={openLogin} className={`${styles.actionButton} ${styles.hideOnMobile}`}>
               {loginLabel}
-            </Link>
+            </button>
           )}
 
           <Link href={wishlistHref} className={`${styles.actionLink} ${styles.hideOnMobile}`}>
@@ -141,15 +153,17 @@ export default function Header({
               </button>
             </>
           ) : (
-            <a href={loginHref} onClick={() => setMenuOpen(false)}>
+            <button type="button" className={styles.sidebarLogout} onClick={openLogin}>
               {loginLabel}
-            </a>
+            </button>
           )}
           <a href={wishlistHref} onClick={() => setMenuOpen(false)}>
             {wishlistLabel} ({wishlistItemCount})
           </a>
         </div>
       </aside>
+
+      <LoginSidebar isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
     </header>
   );
 }
