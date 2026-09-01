@@ -7,6 +7,8 @@ const envSchema = z.object({
   NEXTAUTH_URL: z.string().url(),
   CLIENT_SLUG: z.string().min(1),
   CLIENT_DOMAIN: z.string().min(1),
+  STRIPE_SECRET_KEY: z.string().min(1, 'Falta STRIPE_SECRET_KEY'),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1, 'Falta STRIPE_WEBHOOK_SECRET'),
 });
 
 const parsed = envSchema.safeParse(process.env);

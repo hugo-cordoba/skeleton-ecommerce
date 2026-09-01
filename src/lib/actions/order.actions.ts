@@ -8,6 +8,7 @@ import { getOrCreateGuestId, readGuestId } from '@/lib/guest';
 import { formatPrice } from '@/lib/currency';
 import { shippingMethods } from '@/data/shipping.config';
 import type { Order, OrderItem, OrderStatus, ShippingAddress, ShippingMethod } from '@/types/order.types';
+import { generateOrderNumber } from '@/lib/order-number';
 
 type Actor = { userId: string } | { guestId: string };
 
@@ -24,11 +25,6 @@ function actorWhere(actor: Actor) {
   return 'userId' in actor ? { userId: actor.userId } : { guestId: actor.guestId };
 }
 
-function generateOrderNumber(): string {
-  const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `ORD-${timestamp}-${random}`;
-}
 
 function statusToClient(status: PrismaOrderStatus): OrderStatus {
   switch (status) {
@@ -224,4 +220,9 @@ export async function mergeGuestOrdersIntoUserAction(): Promise<void> {
     where: { guestId },
     data: { userId, guestId: null },
   });
+}
+
+export async function getOrderBySessionId(stripeSessionId: string): Promise<Order | null> {
+  const row = await prisma.order.findUnique({ where: { stripeSessionId }, include });
+  return row ? toOrderDTO(row) : null;
 }
