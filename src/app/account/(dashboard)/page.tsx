@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import styles from '@/components/checkout/checkoutForm.module.css';
+import pageStyles from './AccountProfile.module.css';
 
 export default function AccountProfilePage() {
   const { user, updateProfile } = useAuth();
@@ -28,8 +29,8 @@ export default function AccountProfilePage() {
   }
 
   return (
-    <div>
-      <h1>Mi perfil</h1>
+    <div className={pageStyles.page}>
+      <h1 className={pageStyles.title}>Mi perfil</h1>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <label className={styles.field}>

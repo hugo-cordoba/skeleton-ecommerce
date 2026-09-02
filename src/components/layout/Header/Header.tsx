@@ -38,7 +38,7 @@ export default function Header({
   const [authOpen, setAuthOpen] = useState(false);
   const { itemCount } = useCart();
   const { itemCount: wishlistItemCount } = useWishlist();
-  const { user, hydrated: authHydrated, logout } = useAuth();
+  const { user, hydrated: authHydrated } = useAuth();
   const displayCartCount = cartCount ?? itemCount;
 
   // Un solo efecto controla el scroll del body para los dos paneles
@@ -118,14 +118,9 @@ export default function Header({
           </Link>
 
           {authHydrated && user ? (
-            <>
-              <Link href="/account" className={`${styles.actionLink} ${styles.hideOnMobile}`}>
-                {user.fullName.split(' ')[0]}
-              </Link>
-              <button type="button" onClick={logout} className={`${styles.actionButton} ${styles.hideOnMobile}`}>
-                Salir
-              </button>
-            </>
+            <Link href="/account" className={`${styles.actionLink} ${styles.hideOnMobile}`}>
+              {user.fullName.split(' ')[0]}
+            </Link>
           ) : (
             <button type="button" onClick={openAuth} className={`${styles.actionButton} ${styles.hideOnMobile}`}>
               {loginLabel}
@@ -162,26 +157,15 @@ export default function Header({
 
         <div className={styles.sidebarFooter}>
           {authHydrated && user ? (
-            <>
-              <a href="/account" onClick={() => setMenuOpen(false)}>
-                {user.fullName.split(' ')[0]}
-              </a>
-              <button
-                type="button"
-                onClick={() => {
-                  logout();
-                  setMenuOpen(false);
-                }}
-                className={styles.sidebarLogout}
-              >
-                Salir
-              </button>
-            </>
+            <a href="/account" onClick={() => setMenuOpen(false)}>
+              {user.fullName.split(' ')[0]}
+            </a>
           ) : (
             <button type="button" className={styles.sidebarLogout} onClick={openAuth}>
               {loginLabel}
             </button>
           )}
+
           <a
             href={wishlistHref}
             onClick={(e) => {
