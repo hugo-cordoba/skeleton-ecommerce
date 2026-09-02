@@ -8,7 +8,7 @@ import styles from './Account.module.css';
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className={styles.pageWrapper}>
       <Header
         siteName={siteConfig.name}
         navLinks={siteNavLinks}
@@ -16,13 +16,15 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
         wishlistHref="/account/wishlist"
         cartHref="/cart"
       />
-      <AccountGuard>
-        <div className={styles.wrapper}>
-          <AccountSidebar />
-          <main className={styles.content}>{children}</main>
-        </div>
-      </AccountGuard>
+      <div className={styles.mainArea}>
+        <AccountGuard>
+          <div className={styles.wrapper}>
+            <AccountSidebar />
+            <main className={styles.content}>{children}</main>
+          </div>
+        </AccountGuard>
+      </div>
       <Footer siteName={siteConfig.name} navLinks={siteNavLinks} {...footerContent} />
-    </>
+    </div>
   );
 }

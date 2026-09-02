@@ -12,6 +12,17 @@
   min-width: 0;
 }
 
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.mainArea {
+  flex: 1 0 auto;
+}
+
 @media (max-width: 900px) {
   .wrapper {
     grid-template-columns: 1fr;
