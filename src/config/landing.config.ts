@@ -42,20 +42,6 @@ export const landingSections: SectionConfig[] = [
     },
   },
   {
-    id: 'nosotros',
-    type: 'splitIntro',
-    props: {
-      eyebrow: 'Nuestra filosofia',
-      title: 'Un texto que cuenta la historia de la marca',
-      description:
-        'Este bloque combina texto e imagen y sirve para presentar la marca, un producto destacado o un valor diferencial. Cambia imagen, texto y posicion segun el cliente.',
-      image: 'https://placehold.co/900x1100/e4e4e7/a1a1aa?text=Imagen+de+marca',
-      imagePosition: 'right',
-      ctaLabel: 'Conoce mas',
-      ctaHref: '#contacto',
-    },
-  },
-  {
     id: 'productos',
     type: 'productCarousel',
     props: {
@@ -85,6 +71,20 @@ export const landingSections: SectionConfig[] = [
           href: '#',
         },
       ],
+    },
+  },
+  {
+    id: 'nosotros',
+    type: 'splitIntro',
+    props: {
+      eyebrow: 'Nuestra filosofia',
+      title: 'Un texto que cuenta la historia de la marca',
+      description:
+        'Este bloque combina texto e imagen y sirve para presentar la marca, un producto destacado o un valor diferencial. Cambia imagen, texto y posicion segun el cliente.',
+      image: 'https://placehold.co/900x1100/e4e4e7/a1a1aa?text=Imagen+de+marca',
+      imagePosition: 'right',
+      ctaLabel: 'Conoce mas',
+      ctaHref: '#contacto',
     },
   },
   {
