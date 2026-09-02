@@ -1,10 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import CatalogHeader from '@/components/product/CatalogHeader/CatalogHeader';
-import CatalogLayout from '@/components/product/CatalogLayout/CatalogLayout';
-import ProductFilters from '@/components/product/ProductFilters/ProductFilters';
-import ProductGrid from '@/components/product/ProductGrid/ProductGrid';
-import Pagination from '@/components/product/Pagination/Pagination';
+import ProductCatalog from '@/components/product/ProductCatalog/ProductCatalog';
 import SearchForm from '@/components/product/SearchForm/SearchForm';
 import { searchProducts } from '@/data/products.config';
 import {
@@ -42,24 +39,23 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <CatalogHeader
         title="Buscar"
         description={hasQuery ? undefined : 'Escribe el nombre de un producto o una categoría.'}
-        resultsCount={hasQuery ? filteredResults.length : undefined}
       />
       <SearchForm defaultValue={query} />
 
       {hasQuery && (
-        <CatalogLayout
-          filters={
-            <Suspense fallback={null}>
-              <ProductFilters filterGroups={filterGroups} priceRange={priceRange} />
-            </Suspense>
-          }
-        >
-          <ProductGrid
+        <Suspense fallback={null}>
+          <ProductCatalog
             products={pagedResults}
+            resultsCount={filteredResults.length}
             emptyMessage={`No hemos encontrado nada para "${query}". Prueba con otra palabra.`}
+            filterGroups={filterGroups}
+            priceRange={priceRange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pathname="/search"
+            searchParams={searchParams}
           />
-          <Pagination currentPage={currentPage} totalPages={totalPages} pathname="/search" searchParams={searchParams} />
-        </CatalogLayout>
+        </Suspense>
       )}
     </>
   );

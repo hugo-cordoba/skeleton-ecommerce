@@ -10,10 +10,7 @@ import {
 } from '@/lib/product-filters';
 import { paginate, parsePageParam } from '@/lib/pagination';
 import CatalogHeader from '@/components/product/CatalogHeader/CatalogHeader';
-import CatalogLayout from '@/components/product/CatalogLayout/CatalogLayout';
-import ProductFilters from '@/components/product/ProductFilters/ProductFilters';
-import ProductGrid from '@/components/product/ProductGrid/ProductGrid';
-import Pagination from '@/components/product/Pagination/Pagination';
+import ProductCatalog from '@/components/product/ProductCatalog/ProductCatalog';
 
 interface CategoryPageProps {
   params: { slug: string };
@@ -53,22 +50,21 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   return (
     <>
-      <CatalogHeader title={category.label} resultsCount={filteredProducts.length} />
-      <CatalogLayout
-        filters={
-          <Suspense fallback={null}>
-            <ProductFilters filterGroups={filterGroups} priceRange={priceRange} />
-          </Suspense>
-        }
-      >
-        <ProductGrid products={pagedProducts} emptyMessage="No hay productos que coincidan con estos filtros." />
-        <Pagination
+      <CatalogHeader title={category.label} />
+
+      <Suspense fallback={null}>
+        <ProductCatalog
+          products={pagedProducts}
+          resultsCount={filteredProducts.length}
+          emptyMessage="No hay productos que coincidan con estos filtros."
+          filterGroups={filterGroups}
+          priceRange={priceRange}
           currentPage={currentPage}
           totalPages={totalPages}
           pathname={`/category/${category.slug}`}
           searchParams={searchParams}
         />
-      </CatalogLayout>
+      </Suspense>
     </>
   );
 }

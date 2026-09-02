@@ -22,19 +22,18 @@ export default function ProductFilters({ filterGroups, priceRange }: ProductFilt
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [isOpen, setIsOpen] = useState(false);
   const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') ?? '');
   const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') ?? '');
 
   const currentSort = (searchParams.get('sort') as SortOption) || 'relevance';
   const inStockOnly = searchParams.get('inStock') === '1';
 
-  // Clona los searchParams actuales, aplica el cambio y navega -> es lo que
-  // hace que el filtrado siga viviendo en el Server Component de la pagina.
-const pushParams = useCallback(
+  const pushParams = useCallback(
     (mutate: (params: URLSearchParams) => void) => {
       const params = new URLSearchParams(searchParams.toString());
       mutate(params);
-      params.delete('page'); // cualquier cambio de filtro reinicia a la primera pagina
+      params.delete('page');
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [pathname, router, searchParams]
@@ -90,92 +89,114 @@ const pushParams = useCallback(
     filterGroups.some((group) => Boolean(searchParams.get(group.id)));
 
   return (
-    <div className={styles.filters}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Filtros</h2>
-        {hasActiveFilters && (
-          <button type="button" className={styles.clear} onClick={handleClear}>
-            Limpiar
-          </button>
-        )}
-      </div>
+    <div className={styles.wrapper}>
+      <button
+        type="button"
+        className={styles.toggleButton}
+        data-active={isOpen}
+        onClick={() => setIsOpen((open) => !open)}
+        aria-expanded={isOpen}
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+          <path d="M3 5h14M6 10h8M9 15h2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+        Filtrar y ordenar
+        {hasActiveFilters && <span className={styles.activeDot} aria-hidden="true" />}
+      </button>
 
-      <div className={styles.group}>
-        <label className={styles.groupLabel} htmlFor="sort-select">
-          Ordenar por
-        </label>
-        <select id="sort-select" className={styles.select} value={currentSort} onChange={handleSortChange}>
-          {(Object.keys(SORT_LABELS) as SortOption[]).map((option) => (
-            <option key={option} value={option}>
-              {SORT_LABELS[option]}
-            </option>
-          ))}
-        </select>
-      </div>
+      {isOpen && (
+        <>
+          <div className={styles.overlay} onClick={() => setIsOpen(false)} aria-hidden="true" />
 
-      <div className={styles.group}>
-        <label className={styles.checkboxRow}>
-          <input type="checkbox" checked={inStockOnly} onChange={handleStockChange} />
-          <span>Solo disponibles</span>
-        </label>
-      </div>
-
-      {priceRange.max > priceRange.min && (
-        <form className={styles.group} onSubmit={handlePriceSubmit}>
-          <span className={styles.groupLabel}>
-            Precio ({priceRange.min}–{priceRange.max} EUR)
-          </span>
-          <div className={styles.priceRow}>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={priceRange.min}
-              max={priceRange.max}
-              placeholder="Min"
-              value={minPrice}
-              onChange={(event) => setMinPrice(event.target.value)}
-              className={styles.priceInput}
-              aria-label="Precio mínimo"
-            />
-            <span aria-hidden="true">–</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={priceRange.min}
-              max={priceRange.max}
-              placeholder="Max"
-              value={maxPrice}
-              onChange={(event) => setMaxPrice(event.target.value)}
-              className={styles.priceInput}
-              aria-label="Precio máximo"
-            />
-          </div>
-          <button type="submit" className={styles.apply}>
-            Aplicar
-          </button>
-        </form>
-      )}
-
-      {filterGroups.map((group) => {
-        const selected = searchParams.get(group.id)?.split(',').filter(Boolean) ?? [];
-        return (
-          <div key={group.id} className={styles.group}>
-            <span className={styles.groupLabel}>{group.label}</span>
-            <div className={styles.optionsList}>
-              {group.options.map((option) => (
-                <label key={option} className={styles.checkboxRow}>
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(option)}
-                    onChange={(event) => handleVariantToggle(group.id, option, event.target.checked)}
-                  />
-                  <span>{option}</span>
-                </label>
-              ))}
+          <div className={styles.panel} role="dialog" aria-label="Filtrar y ordenar productos">
+            <div className={styles.panelHeader}>
+              <h2 className={styles.panelTitle}>Filtrar y ordenar</h2>
+              {hasActiveFilters && (
+                <button type="button" className={styles.clear} onClick={handleClear}>
+                  Limpiar
+                </button>
+              )}
             </div>
+
+            <div className={styles.group}>
+              <label className={styles.groupLabel} htmlFor="sort-select">
+                Ordenar por
+              </label>
+              <select id="sort-select" className={styles.select} value={currentSort} onChange={handleSortChange}>
+                {(Object.keys(SORT_LABELS) as SortOption[]).map((option) => (
+                  <option key={option} value={option}>
+                    {SORT_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.group}>
+              <label className={styles.checkboxRow}>
+                <input type="checkbox" checked={inStockOnly} onChange={handleStockChange} />
+                <span>Solo disponibles</span>
+              </label>
+            </div>
+
+            {priceRange.max > priceRange.min && (
+              <form className={styles.group} onSubmit={handlePriceSubmit}>
+                <span className={styles.groupLabel}>
+                  Precio ({priceRange.min}–{priceRange.max} EUR)
+                </span>
+                <div className={styles.priceRow}>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={priceRange.min}
+                    max={priceRange.max}
+                    placeholder="Min"
+                    value={minPrice}
+                    onChange={(event) => setMinPrice(event.target.value)}
+                    className={styles.priceInput}
+                    aria-label="Precio mínimo"
+                  />
+                  <span aria-hidden="true">–</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={priceRange.min}
+                    max={priceRange.max}
+                    placeholder="Max"
+                    value={maxPrice}
+                    onChange={(event) => setMaxPrice(event.target.value)}
+                    className={styles.priceInput}
+                    aria-label="Precio máximo"
+                  />
+                </div>
+                <button type="submit" className={styles.apply}>
+                  Aplicar
+                </button>
+              </form>
+            )}
+
+            {filterGroups.map((group) => {
+              const selected = searchParams.get(group.id)?.split(',').filter(Boolean) ?? [];
+              return (
+                <div key={group.id} className={styles.group}>
+                  <span className={styles.groupLabel}>{group.label}</span>
+                  <div className={styles.optionsList}>
+                    {group.options.map((option) => (
+                      <label key={option} className={styles.checkboxRow}>
+                        <input
+                          type="checkbox"
+                          checked={selected.includes(option)}
+                          onChange={(event) => handleVariantToggle(group.id, option, event.target.checked)}
+                        />
+                        <span>{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
+        </>
+      )}
     </div>
   );
 }

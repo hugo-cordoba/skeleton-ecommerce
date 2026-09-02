@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAllBrandSlugs, getBrandBySlug, getProductsByBrand } from '@/data/products.config';
-import { prisma } from '@/lib/prisma';
 import {
   filterAndSortProducts,
   getAvailableFilterGroups,
@@ -11,10 +10,7 @@ import {
 } from '@/lib/product-filters';
 import { paginate, parsePageParam } from '@/lib/pagination';
 import CatalogHeader from '@/components/product/CatalogHeader/CatalogHeader';
-import CatalogLayout from '@/components/product/CatalogLayout/CatalogLayout';
-import ProductFilters from '@/components/product/ProductFilters/ProductFilters';
-import ProductGrid from '@/components/product/ProductGrid/ProductGrid';
-import Pagination from '@/components/product/Pagination/Pagination';
+import ProductCatalog from '@/components/product/ProductCatalog/ProductCatalog';
 
 interface BrandPageProps {
   params: { slug: string };
@@ -52,22 +48,21 @@ export default async function BrandPage({ params, searchParams }: BrandPageProps
 
   return (
     <>
-      <CatalogHeader title={brand.label} resultsCount={filteredProducts.length} />
-      <CatalogLayout
-        filters={
-          <Suspense fallback={null}>
-            <ProductFilters filterGroups={filterGroups} priceRange={priceRange} />
-          </Suspense>
-        }
-      >
-        <ProductGrid products={pagedProducts} emptyMessage="No hay productos de esta marca por ahora." />
-        <Pagination
+      <CatalogHeader title={brand.label} />
+
+      <Suspense fallback={null}>
+        <ProductCatalog
+          products={pagedProducts}
+          resultsCount={filteredProducts.length}
+          emptyMessage="No hay productos de esta marca por ahora."
+          filterGroups={filterGroups}
+          priceRange={priceRange}
           currentPage={currentPage}
           totalPages={totalPages}
           pathname={`/brand/${brand.slug}`}
           searchParams={searchParams}
         />
-      </CatalogLayout>
+      </Suspense>
     </>
   );
 }

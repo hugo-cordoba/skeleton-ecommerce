@@ -60,7 +60,7 @@ export const landingSections: SectionConfig[] = [
     props: {
       title: 'Productos destacados',
       viewAllLabel: 'Ver todas',
-      viewAllHref: '#productos',
+      viewAllHref: '/products',
       items: [
         { id: 'p1', name: 'Producto 1', price: '19,90 EUR', image: 'https://placehold.co/300x300/e4e4e7/a1a1aa?text=1' },
         { id: 'p2', name: 'Producto 2', price: '24,90 EUR', image: 'https://placehold.co/300x300/e4e4e7/a1a1aa?text=2' },

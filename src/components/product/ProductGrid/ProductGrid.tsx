@@ -5,15 +5,16 @@ import styles from './ProductGrid.module.css';
 interface ProductGridProps {
   products: Product[];
   emptyMessage: string;
+  columns?: 4 | 7;
 }
 
-export default function ProductGrid({ products, emptyMessage }: ProductGridProps) {
+export default function ProductGrid({ products, emptyMessage, columns = 4 }: ProductGridProps) {
   if (products.length === 0) {
     return <p className={styles.empty}>{emptyMessage}</p>;
   }
 
   return (
-    <div className={styles.grid}>
+    <div className={styles.grid} data-columns={columns}>
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
