@@ -6,6 +6,7 @@ import type { SectionConfig, NavLink, SocialLink } from '@/types/section.types';
  * que el Header (fuera del Hero) pueda usarlos tambien.
  */
 export const siteNavLinks: NavLink[] = [
+  { label: 'Productos', href: '/products' },
   { label: 'Catalogo', href: '#productos' },
   { label: 'Nosotros', href: '#nosotros' },
   { label: 'Contacto', href: '#contacto' },

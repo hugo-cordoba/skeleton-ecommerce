@@ -49,22 +49,6 @@
   color: var(--color-text-muted);
 }
 
-.remove {
-  align-self: flex-start;
-  margin-top: 0.35rem;
-  border: none;
-  background: none;
-  padding: 0;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.remove:hover {
-  color: var(--color-text);
-}
-
 .stepper {
   display: inline-flex;
   align-items: center;
@@ -134,4 +118,8 @@
     grid-area: total;
     text-align: right;
   }
+}
+
+.stepperButtonDanger:hover:not(:disabled) {
+  color: #e11d48;
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { Product } from '@/types/product.types';
 import { useWishlist } from '@/context/WishlistContext';
 import styles from './WishlistButton.module.css';
@@ -7,12 +8,21 @@ import styles from './WishlistButton.module.css';
 export default function WishlistButton({ product }: { product: Product }) {
   const { isInWishlist, toggleItem } = useWishlist();
   const active = isInWishlist(product.id);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  function handleClick() {
+    if (!active) {
+      setIsAnimating(true);
+    }
+    toggleItem(product);
+  }
 
   return (
     <button
       type="button"
-      className={`${styles.button} ${active ? styles.active : ''}`}
-      onClick={() => toggleItem(product)}
+      className={`${styles.button} ${active ? styles.active : ''} ${isAnimating ? styles.pop : ''}`}
+      onClick={handleClick}
+      onAnimationEnd={() => setIsAnimating(false)}
       aria-pressed={active}
       aria-label={
         active ? `Quitar ${product.name} de la lista de deseos` : `Añadir ${product.name} a la lista de deseos`

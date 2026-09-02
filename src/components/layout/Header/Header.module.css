@@ -267,3 +267,14 @@
     width: 85vw;
   }
 }
+
+@keyframes actionBump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.18); color: var(--color-primary); }
+  100% { transform: scale(1); }
+}
+
+.bump {
+  display: inline-block;
+  animation: actionBump 0.5s ease;
+}

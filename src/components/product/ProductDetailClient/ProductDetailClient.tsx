@@ -18,6 +18,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [justAdded, setJustAdded] = useState(false);
 
   // Preselecciona la primera opción disponible de cada grupo de variante.
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>(() => {
@@ -54,6 +55,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     if (!canAddToCart) return;
     addItem(product, quantity, product.variants ? selectedVariants : undefined);
     setFeedback('Añadido a la cesta.');
+    setJustAdded(true);
   }
 
   return (
@@ -150,11 +152,23 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
         <button
           type="button"
-          className={styles.addToCart}
+          className={`${styles.addToCart} ${justAdded ? styles.addToCartPop : ''}`}
           onClick={handleAddToCart}
+          onAnimationEnd={() => setJustAdded(false)}
           disabled={!canAddToCart}
         >
-          {inStock ? 'Añadir a la cesta' : 'Agotado'}
+          {justAdded ? (
+            <span className={styles.addToCartConfirm}>
+              <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+                <path d="M4 10.5 8 14l8-8" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Añadido
+            </span>
+          ) : inStock ? (
+            'Añadir a la cesta'
+          ) : (
+            'Agotado'
+          )}
         </button>
 
         {!inStock && <p className={styles.stockMessage}>Este producto no tiene unidades disponibles.</p>}

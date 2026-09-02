@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { NavLink } from '@/types/section.types';
 import { useCart } from '@/context/CartContext';
@@ -40,6 +40,20 @@ export default function Header({
   const { itemCount: wishlistItemCount } = useWishlist();
   const { user, hydrated: authHydrated } = useAuth();
   const displayCartCount = cartCount ?? itemCount;
+  const prevCartCountRef = useRef(displayCartCount);
+  const prevWishlistCountRef = useRef(wishlistItemCount);
+  const [cartBump, setCartBump] = useState(false);
+  const [wishlistBump, setWishlistBump] = useState(false);
+
+  useEffect(() => {
+    if (displayCartCount > prevCartCountRef.current) setCartBump(true);
+    prevCartCountRef.current = displayCartCount;
+  }, [displayCartCount]);
+
+  useEffect(() => {
+    if (wishlistItemCount > prevWishlistCountRef.current) setWishlistBump(true);
+    prevWishlistCountRef.current = wishlistItemCount;
+  }, [wishlistItemCount]);
 
   // Un solo efecto controla el scroll del body para los dos paneles
   // (menu y auth), asi evitamos que se pisen si alguna vez coinciden.
@@ -129,12 +143,17 @@ export default function Header({
 
           <Link
             href={wishlistHref}
-            className={`${styles.actionLink} ${styles.hideOnMobile}`}
+            className={`${styles.actionLink} ${styles.hideOnMobile} ${wishlistBump ? styles.bump : ''}`}
             onClick={handleWishlistClick}
+            onAnimationEnd={() => setWishlistBump(false)}
           >
             {wishlistLabel} ({wishlistItemCount})
           </Link>
-          <Link href={cartHref} className={styles.actionLink}>
+          <Link
+            href={cartHref}
+            className={`${styles.actionLink} ${cartBump ? styles.bump : ''}`}
+            onAnimationEnd={() => setCartBump(false)}
+          >
             {cartLabel} ({displayCartCount})
           </Link>
         </div>
