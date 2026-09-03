@@ -9,6 +9,7 @@ import {
 } from '@/lib/product-filters';
 import { paginate, parsePageParam } from '@/lib/pagination';
 import CatalogHeader from '@/components/product/CatalogHeader/CatalogHeader';
+import ProductFilters from '@/components/product/ProductFilters/ProductFilters';
 import ProductCatalog from '@/components/product/ProductCatalog/ProductCatalog';
 
 export const metadata: Metadata = {
@@ -33,7 +34,7 @@ export default async function AllProductsPage({ searchParams }: AllProductsPageP
 
   return (
     <>
-      <CatalogHeader title="Todos los productos" />
+      <CatalogHeader title="Todos los productos" actions={<ProductFilters />} />
 
       <Suspense fallback={null}>
         <ProductCatalog

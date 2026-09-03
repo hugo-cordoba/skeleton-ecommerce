@@ -1,174 +1,94 @@
-.wrapper {
+.sortWrapper {
   position: relative;
+  display: inline-flex;
 }
 
-.toggleButton {
+.sortButton {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.65rem 1.15rem;
-  border-radius: 999px;
-  border: 1px solid var(--color-secondary);
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  font-size: 0.85rem;
-  font-weight: 500;
+  gap: 0.4rem;
+  padding: 0;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  color: var(--color-text);
+}
+
+.sortButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.sortLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
   white-space: nowrap;
 }
 
-.toggleButton:hover,
-.toggleButton[data-active='true'] {
-  border-color: var(--color-primary);
+.chevron {
+  flex: 0 0 auto;
+  color: var(--color-text);
+  transition: transform 0.2s ease;
 }
 
-.activeDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background-color: var(--color-primary);
+.chevronOpen {
+  transform: rotate(180deg);
 }
 
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  background: transparent;
-}
-
-.panel {
+.dropdown {
   position: absolute;
-  top: calc(100% + 0.6rem);
+  top: calc(100% + 0.5rem);
   right: 0;
+  min-width: 200px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
   z-index: 100;
-  width: min(360px, 88vw);
-  max-height: 75vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.35rem;
-  padding: 1.5rem;
-  border-radius: 16px;
-  background-color: var(--color-surface);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+  animation: fadeIn 0.15s ease;
 }
 
-.panelHeader {
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  background: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.panelTitle {
-  font-family: var(--font-heading);
-  font-size: 1.05rem;
+.dropdownItem:hover {
+  background: #f5f5f5;
+}
+
+.dropdownItemActive {
+  color: var(--color-primary);
   font-weight: 500;
 }
 
-.clear {
-  border: none;
-  background: none;
-  padding: 0;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  text-decoration: underline;
-  cursor: pointer;
+.dropdownItem svg {
+  color: var(--color-primary);
 }
 
-.clear:hover {
-  color: var(--color-text);
-}
-
-.group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.group:first-of-type {
-  padding-top: 0;
-  border-top: none;
-}
-
-.groupLabel {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.select {
-  padding: 0.65rem 0.85rem;
-  border-radius: 10px;
-  border: 1px solid var(--color-secondary);
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-size: 0.85rem;
-}
-
-.checkboxRow {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.85rem;
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.optionsList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.priceRow {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.priceInput {
-  width: 0;
-  flex: 1;
-  padding: 0.6rem 0.75rem;
-  border-radius: 10px;
-  border: 1px solid var(--color-secondary);
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-size: 0.85rem;
-}
-
-.apply {
-  align-self: flex-start;
-  padding: 0.55rem 1.1rem;
-  border-radius: 999px;
-  border: none;
-  background-color: var(--color-primary);
-  color: var(--color-background);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.apply:hover {
-  transform: translateY(-1px);
-  background-color: var(--color-primary-light);
-}
-
-@media (max-width: 480px) {
-  .panel {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-height: 80vh;
-    border-radius: 20px 20px 0 0;
-  }
-}
