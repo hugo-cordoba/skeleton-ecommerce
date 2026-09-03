@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { NavLink, SocialLink } from '@/types/section.types';
 import NewsletterForm from './NewsletterForm';
+import FooterLegalLinks from './FooterLegalLinks';
 import styles from './Footer.module.css';
 
 interface FooterProps {
@@ -101,6 +102,7 @@ export default function Footer({
         <p>
           &copy; {new Date().getFullYear()} {siteName}. Todos los derechos reservados.
         </p>
+        <FooterLegalLinks />
       </div>
     </footer>
   );

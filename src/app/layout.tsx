@@ -8,7 +8,10 @@ import { WishlistProvider } from '@/context/WishlistContext';
 import { OrdersProvider } from '@/context/OrdersContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { AddressBookProvider } from '@/context/AddressBookContext';
+import { CookieConsentProvider } from '@/context/CookieConsentContext';
 import AuthSessionProvider from '@/context/AuthSessionProvider';
+import CookieConsentBanner from '@/components/layout/CookieConsent/CookieConsentBanner';
+import CookiePreferencesModal from '@/components/layout/CookieConsent/CookiePreferencesModal';
 import './globals.css';
 import '@/lib/env';
 
@@ -35,17 +38,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="es">
       <body style={themeVars}>
-        <AuthSessionProvider>
-          <AuthProvider>
-            <CartProvider initialCart={initialCart}>
-              <WishlistProvider initialItems={initialWishlist}>
-                <AddressBookProvider>
-                  <OrdersProvider initialOrders={initialOrders}>{children}</OrdersProvider>
-                </AddressBookProvider>
-              </WishlistProvider>
-            </CartProvider>
-          </AuthProvider>
-        </AuthSessionProvider>
+        <CookieConsentProvider>
+          <AuthSessionProvider>
+            <AuthProvider>
+              <CartProvider initialCart={initialCart}>
+                <WishlistProvider initialItems={initialWishlist}>
+                  <AddressBookProvider>
+                    <OrdersProvider initialOrders={initialOrders}>{children}</OrdersProvider>
+                  </AddressBookProvider>
+                </WishlistProvider>
+              </CartProvider>
+            </AuthProvider>
+          </AuthSessionProvider>
+
+          <CookieConsentBanner />
+          <CookiePreferencesModal />
+        </CookieConsentProvider>
       </body>
     </html>
   );

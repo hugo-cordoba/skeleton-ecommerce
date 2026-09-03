@@ -147,8 +147,56 @@
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   padding: 1.25rem 0;
   font-size: 0.8rem;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+}
+
+.bottomBar p {
   opacity: 0.75;
+}
+
+.legalList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+}
+
+.legalList a {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.75;
+}
+
+.legalList a:hover {
+  opacity: 1;
+}
+
+.legalButton {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.8rem;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.legalButton:hover {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .bottomBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .newsletterFeedback {

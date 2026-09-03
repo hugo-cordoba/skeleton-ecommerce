@@ -168,3 +168,48 @@ export const contactContent: ContactPageData = {
     { label: 'Horario', value: 'Lunes a viernes, 9:00-18:00' },
   ],
 };
+
+export const cookiesContent: ContentPageData = {
+  title: 'Política de cookies',
+  updatedAt: 'Sustituir por la fecha real (ej. 1 de enero de 2026)',
+  intro:
+    'Esta página explica qué son las cookies, cuáles usamos en esta web y cómo puedes aceptarlas, rechazarlas o cambiar tu elección en cualquier momento.',
+  sections: [
+    {
+      heading: '1. Qué es una cookie',
+      body: [
+        'Una cookie es un pequeño archivo que se guarda en tu navegador cuando visitas una web. Sirve para recordar información sobre tu visita, como tus preferencias o si has iniciado sesión.',
+      ],
+    },
+    {
+      heading: '2. Qué cookies usamos',
+      body: [
+        'Clasificamos las cookies de esta web en tres categorías. Puedes elegir cuáles aceptar desde el botón "Configurar cookies" del pie de página.',
+      ],
+      list: [
+        'Necesarias: imprescindibles para navegar por la web, mantener la cesta y la sesión iniciada. No se pueden desactivar porque la web no funcionaría sin ellas.',
+        'Analíticas: nos ayudan a entender cómo se usa la web (páginas visitadas, errores) de forma agregada, para poder mejorarla. Solo se instalan si las aceptas.',
+        'Marketing: se usan para mostrarte publicidad relevante en esta web y en otras, según tu navegación. Solo se instalan si las aceptas.',
+      ],
+    },
+    {
+      heading: '3. Cómo cambiar tu elección',
+      body: [
+        'Puedes aceptar, rechazar o configurar el detalle de las cookies la primera vez que visitas la web, y volver a cambiar tu elección cuando quieras desde el enlace "Configurar cookies" en el pie de página.',
+        'Tu elección se recuerda durante 12 meses; pasado ese tiempo, volveremos a pedirte tu consentimiento.',
+      ],
+    },
+    {
+      heading: '4. Cookies de terceros',
+      body: [
+        'Texto placeholder: si en el futuro se activan herramientas de analítica o publicidad de terceros (ej. Google Analytics, Meta Pixel), enumera aquí cada proveedor, su finalidad y el plazo de conservación.',
+      ],
+    },
+    {
+      heading: '5. Más información',
+      body: [
+        'Para cualquier duda sobre esta política puedes escribirnos desde la página de Contacto. Consulta también nuestra Política de privacidad para saber cómo tratamos tus datos personales.',
+      ],
+    },
+  ],
+};
