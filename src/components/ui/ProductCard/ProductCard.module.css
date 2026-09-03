@@ -57,3 +57,80 @@
   font-size: 0.95rem;
   color: var(--color-text-muted);
 }
+
+.addToCartWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  aspect-ratio: 1 / 1.2;
+  display: flex;
+  align-items: flex-end;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.addToCartButton {
+  pointer-events: auto;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: none;
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.2s ease;
+}
+
+.cardWrapper:hover .addToCartButton,
+.addToCartButton:focus-visible,
+.addToCartButtonPop {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.addToCartButton:hover {
+  background-color: var(--color-primary-light);
+}
+
+.addToCartConfirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+@keyframes cardAddToCartPop {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(0) scale(1.04); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.addToCartButtonPop {
+  animation: cardAddToCartPop 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .addToCartButton {
+    transition: none;
+  }
+  .addToCartButtonPop {
+    animation: none;
+  }
+}
+
+/* Sin hover en tactil: el botón queda siempre visible */
+@media (max-width: 640px) {
+  .addToCartButton {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

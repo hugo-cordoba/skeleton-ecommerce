@@ -13,9 +13,9 @@ import {
   type CartItemDTO,
 } from '@/lib/actions/cart.actions';
 import type { ProductDetail } from '@/types/product.types';
+import type { Product } from '@/types/product.types';
 
 export type CartItem = CartItemDTO;
-// Compatibilidad: si algo importaba esto desde aquí, sigue funcionando.
 export { buildCartLineId } from '@/lib/cart-utils';
 
 interface CartContextValue {
@@ -24,7 +24,7 @@ interface CartContextValue {
   subtotal: number;
   subtotalFormatted: string;
   hydrated: boolean;
-  addItem: (product: ProductDetail, quantity?: number, selectedVariants?: Record<string, string>) => void;
+  addItem: (product: Pick<Product, 'id'> | ProductDetail, quantity?: number, selectedVariants?: Record<string, string>) => void;
   updateQuantity: (id: string, quantity: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
@@ -62,7 +62,7 @@ export function CartProvider({
     getCart().then((result) => setCart(result || EMPTY_CART));
   }, [user?.id, authHydrated]);
 
-  function addItem(product: ProductDetail, quantity = 1, selectedVariants?: Record<string, string>) {
+  function addItem(product: Pick<Product, 'id'> | ProductDetail, quantity = 1, selectedVariants?: Record<string, string>) {
     startTransition(async () => {
       try {
         setCart(await addToCartAction(product.id, quantity, selectedVariants));
