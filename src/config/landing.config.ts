@@ -45,16 +45,9 @@ export const landingSections: SectionConfig[] = [
     id: 'productos',
     type: 'productCarousel',
     props: {
-      title: 'Productos destacados',
+      title: 'PRODUCTOS DESTACADOS',
       viewAllLabel: 'Ver todas',
       viewAllHref: '/products',
-      items: [
-        { id: 'p1', name: 'Producto 1', price: '19,90 EUR', image: 'https://placehold.co/300x300/e4e4e7/a1a1aa?text=1' },
-        { id: 'p2', name: 'Producto 2', price: '24,90 EUR', image: 'https://placehold.co/300x300/e4e4e7/a1a1aa?text=2' },
-        { id: 'p3', name: 'Producto 3', price: '15,90 EUR', image: 'https://placehold.co/300x300/e4e4e7/a1a1aa?text=3' },
-        { id: 'p4', name: 'Producto 4', price: '29,90 EUR', image: 'https://placehold.co/300x300/e4e4e7/a1a1aa?text=4' },
-        { id: 'p5', name: 'Producto 5', price: '12,90 EUR', image: 'https://placehold.co/300x300/e4e4e7/a1a1aa?text=5' },
-      ],
       promos: [
         {
           id: 'promo1',

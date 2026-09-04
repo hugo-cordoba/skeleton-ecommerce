@@ -29,14 +29,6 @@ export interface SplitIntroProps {
   ctaHref?: string;
 }
 
-export interface FeaturedProduct {
-  id: string;
-  name: string;
-  price: string;
-  image: string;
-  href?: string;
-}
-
 export interface PromoBanner {
   id: string;
   tag?: string;
@@ -46,13 +38,14 @@ export interface PromoBanner {
   image?: string;
 }
 
-export interface ProductCarouselProps {
-  title?: string;
-  viewAllLabel?: string;
-  viewAllHref?: string;
-  items: FeaturedProduct[];
-  promos: PromoBanner[];
-}
+ export interface ProductCarouselProps {
+   title?: string;
+   viewAllLabel?: string;
+   viewAllHref?: string;
+-  items: FeaturedProduct[];
++  items?: Product[];
+   promos: PromoBanner[];
+ }
 
 export interface FeatureBannerProps {
   title: string;
@@ -90,3 +83,15 @@ export interface SocialLink {
   initial: string;
   href: string;
 }
+
+export interface PromoGridProps {
+  promos: PromoBanner[];
+}
+
+export type SectionConfig =
+  | { id: string; type: 'hero'; props: HeroProps }
+  | { id: string; type: 'splitIntro'; props: SplitIntroProps }
+  | { id: string; type: 'productCarousel'; props: ProductCarouselProps }
+  | { id: string; type: 'featureBanner'; props: FeatureBannerProps }
+  | { id: string; type: 'categoryGrid'; props: CategoryGridProps }
+  | { id: string; type: 'promoGrid'; props: PromoGridProps };

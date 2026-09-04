@@ -1,39 +1,6 @@
 .section {
-  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 5vw, 4rem);
+  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
   background-color: var(--color-background);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.title {
-  font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 500;
-}
-
-.viewAll {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  text-decoration: none;
-}
-
-.viewAll:hover {
-  color: var(--color-text);
-}
-
-.itemsRow {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 2.5rem;
-  /* ProductCard usa esta variable para ocupar el 100% de su columna,
-     igual que en ProductGrid (listado de /products). */
-  --product-card-width: 100%;
 }
 
 .promos {
@@ -90,17 +57,7 @@
   margin-top: auto;
 }
 
-@media (max-width: 900px) {
-  .itemsRow {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
 @media (max-width: 640px) {
-  .itemsRow {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .promos {
     grid-template-columns: 1fr;
   }
