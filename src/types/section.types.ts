@@ -38,14 +38,13 @@ export interface PromoBanner {
   image?: string;
 }
 
- export interface ProductCarouselProps {
-   title?: string;
-   viewAllLabel?: string;
-   viewAllHref?: string;
--  items: FeaturedProduct[];
-+  items?: Product[];
-   promos: PromoBanner[];
- }
+export interface ProductCarouselProps {
+  title?: string;
+  viewAllLabel?: string;
+  viewAllHref?: string;
+  items?: Product[];
+  promos?: PromoBanner[];
+}
 
 export interface FeatureBannerProps {
   title: string;
@@ -66,6 +65,10 @@ export interface CategoryGridProps {
   categories: Category[];
 }
 
+export interface PromoGridProps {
+  promos: PromoBanner[];
+}
+
 /**
  * Union discriminada: cada seccion de la landing es un objeto con
  * "type" + "props" tipados. Esto es lo que permite que SectionRenderer
@@ -76,22 +79,11 @@ export type SectionConfig =
   | { id: string; type: 'splitIntro'; props: SplitIntroProps }
   | { id: string; type: 'productCarousel'; props: ProductCarouselProps }
   | { id: string; type: 'featureBanner'; props: FeatureBannerProps }
-  | { id: string; type: 'categoryGrid'; props: CategoryGridProps };
+  | { id: string; type: 'categoryGrid'; props: CategoryGridProps }
+  | { id: string; type: 'promoGrid'; props: PromoGridProps };
 
 export interface SocialLink {
   label: string;
   initial: string;
   href: string;
 }
-
-export interface PromoGridProps {
-  promos: PromoBanner[];
-}
-
-export type SectionConfig =
-  | { id: string; type: 'hero'; props: HeroProps }
-  | { id: string; type: 'splitIntro'; props: SplitIntroProps }
-  | { id: string; type: 'productCarousel'; props: ProductCarouselProps }
-  | { id: string; type: 'featureBanner'; props: FeatureBannerProps }
-  | { id: string; type: 'categoryGrid'; props: CategoryGridProps }
-  | { id: string; type: 'promoGrid'; props: PromoGridProps };

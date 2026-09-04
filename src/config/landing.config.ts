@@ -48,22 +48,16 @@ export const landingSections: SectionConfig[] = [
       title: 'PRODUCTOS DESTACADOS',
       viewAllLabel: 'Ver todas',
       viewAllHref: '/products',
-      promos: [
-        {
-          id: 'promo1',
-          tag: '25% de descuento',
-          title: 'Frescura garantizada',
-          ctaLabel: 'Comprar ahora',
-          href: '#',
-        },
-        {
-          id: 'promo2',
-          tag: '25% de descuento',
-          title: 'Calidad premium',
-          ctaLabel: 'Comprar ahora',
-          href: '#',
-        },
-      ],
+    },
+  },
+  {
+    id: 'destacado',
+    type: 'featureBanner',
+    props: {
+      title: 'Una coleccion para cada ocasion',
+      description: 'Bloque de ancho completo con el color principal de marca, ideal para campañas o lanzamientos.',
+      ctaLabel: 'Comprar ahora',
+      ctaHref: '#productos',
     },
   },
   {
@@ -78,29 +72,6 @@ export const landingSections: SectionConfig[] = [
       imagePosition: 'right',
       ctaLabel: 'Conoce mas',
       ctaHref: '#contacto',
-    },
-  },
-  {
-    id: 'destacado',
-    type: 'featureBanner',
-    props: {
-      title: 'Una coleccion para cada ocasion',
-      description: 'Bloque de ancho completo con el color principal de marca, ideal para campañas o lanzamientos.',
-      ctaLabel: 'Comprar ahora',
-      ctaHref: '#productos',
-    },
-  },
-  {
-    id: 'categorias',
-    type: 'categoryGrid',
-    props: {
-      title: 'Explora por categoria',
-      categories: [
-          { label: 'Categoria 1', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+1', href: '/category/categoria-1' },
-          { label: 'Categoria 2', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+2', href: '/category/categoria-2' },
-          { label: 'Categoria 3', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+3', href: '/category/categoria-3' },
-          { label: 'Categoria 4', image: 'https://placehold.co/500x500/e4e4e7/a1a1aa?text=Categoria+4', href: '/category/categoria-4' },
-        ],
     },
   },
 ];
