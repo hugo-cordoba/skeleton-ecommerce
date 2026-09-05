@@ -2,14 +2,24 @@
 
 import * as React from "react"
 import {
-  Store,
+  AudioWaveform,
+  BookOpen,
+  Bot,
+  Command,
+  Frame,
+  GalleryVerticalEnd,
   LayoutDashboard,
+  Map,
   Package,
-  ShoppingCart,
+  PieChart,
   Settings2,
+  ShoppingCart,
+  SquareTerminal,
+  Store,
 } from "lucide-react"
 
 import { NavMain } from "@/components/admin/nav-main"
+import { NavProjects } from "@/components/admin/nav-projects"
 import { NavUser } from "@/components/admin/nav-user"
 import { TeamSwitcher } from "@/components/admin/team-switcher"
 import {
@@ -41,7 +51,17 @@ export function AppSidebar({ user, teamName, ...props }: AppSidebarProps) {
       {
         name: teamName || "Acme Inc",
         logo: Store,
-        plan: "Admin Panel",
+        plan: "Enterprise",
+      },
+      {
+        name: "Acme Corp.",
+        logo: AudioWaveform,
+        plan: "Startup",
+      },
+      {
+        name: "Evil Corp.",
+        logo: Command,
+        plan: "Free",
       },
     ],
     navMain: [
@@ -82,10 +102,6 @@ export function AppSidebar({ user, teamName, ...props }: AppSidebarProps) {
             title: "Categories",
             url: "/admin/products",
           },
-          {
-            title: "Inventory",
-            url: "/admin/products",
-          },
         ],
       },
       {
@@ -105,10 +121,6 @@ export function AppSidebar({ user, teamName, ...props }: AppSidebarProps) {
             title: "Completed",
             url: "/admin/orders",
           },
-          {
-            title: "Cancelled",
-            url: "/admin/orders",
-          },
         ],
       },
       {
@@ -125,14 +137,27 @@ export function AppSidebar({ user, teamName, ...props }: AppSidebarProps) {
             url: "/admin",
           },
           {
-            title: "Shipping",
-            url: "/admin",
-          },
-          {
             title: "Payments",
             url: "/admin",
           },
         ],
+      },
+    ],
+    projects: [
+      {
+        name: "Design Engineering",
+        url: "#",
+        icon: Frame,
+      },
+      {
+        name: "Sales & Marketing",
+        url: "#",
+        icon: PieChart,
+      },
+      {
+        name: "Travel",
+        url: "#",
+        icon: Map,
       },
     ],
   }
@@ -144,6 +169,7 @@ export function AppSidebar({ user, teamName, ...props }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
