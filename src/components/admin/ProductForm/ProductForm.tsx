@@ -8,8 +8,12 @@ import {
   type AdminProductDetail,
   type ProductFormInput,
 } from '@/lib/actions/admin/product.actions';
-import formStyles from '@/components/checkout/checkoutForm.module.css';
-import styles from './ProductForm.module.css';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface OptionItem {
   slug: string;
@@ -23,6 +27,8 @@ interface ProductFormProps {
   categories: OptionItem[];
   brands: OptionItem[];
 }
+
+const NO_BRAND = '__none__';
 
 export default function ProductForm({ mode, productId, initialData, categories, brands }: ProductFormProps) {
   const router = useRouter();
@@ -38,7 +44,7 @@ export default function ProductForm({ mode, productId, initialData, categories, 
   const [shortDescription, setShortDescription] = useState(initialData?.shortDescription ?? '');
   const [stock, setStock] = useState(initialData?.stock ?? 0);
   const [categorySlug, setCategorySlug] = useState(initialData?.categorySlug ?? categories[0]?.slug ?? '');
-  const [brandSlug, setBrandSlug] = useState(initialData?.brandSlug ?? '');
+  const [brandSlug, setBrandSlug] = useState(initialData?.brandSlug ?? NO_BRAND);
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,10 +54,7 @@ export default function ProductForm({ mode, productId, initialData, categories, 
     setError(null);
     setIsSubmitting(true);
 
-    const images = imagesText
-      .split('\n')
-      .map((line) => line.trim())
-      .filter(Boolean);
+    const images = imagesText.split('\n').map((line) => line.trim()).filter(Boolean);
 
     const input: ProductFormInput = {
       name,
@@ -66,161 +69,141 @@ export default function ProductForm({ mode, productId, initialData, categories, 
       shortDescription: shortDescription || undefined,
       stock,
       categorySlug,
-      brandSlug: brandSlug || undefined,
+      brandSlug: brandSlug === NO_BRAND ? undefined : brandSlug,
     };
 
     const result =
       mode === 'create' ? await createProductAction(input) : await updateProductAction(productId!, input);
 
-    // Si todo va bien, la server action redirige (lanza NEXT_REDIRECT) y
-    // no llegamos aqui. Si llegamos, es que hubo un error de validacion.
     setIsSubmitting(false);
     if (result && !result.ok) setError(result.error ?? 'No se ha podido guardar el producto.');
   }
 
   return (
-    <form className={formStyles.form} onSubmit={handleSubmit}>
-      <div className={formStyles.row}>
-        <label className={formStyles.field}>
-          <span className={formStyles.label}>Nombre</span>
-          <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className={formStyles.input} />
-        </label>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Información general</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-5 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="name">Nombre</Label>
+            <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
 
-        <label className={formStyles.field}>
-          <span className={formStyles.label}>Slug (opcional, se genera del nombre)</span>
-          <input
-            type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className={formStyles.input}
-            placeholder="mi-producto"
-          />
-        </label>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="slug">Slug (opcional, se genera del nombre)</Label>
+            <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="mi-producto" />
+          </div>
 
-      <div className={formStyles.row}>
-        <label className={formStyles.field}>
-          <span className={formStyles.label}>SKU</span>
-          <input type="text" required value={sku} onChange={(e) => setSku(e.target.value)} className={formStyles.input} />
-        </label>
+          <div className="space-y-2">
+            <Label htmlFor="sku">SKU</Label>
+            <Input id="sku" required value={sku} onChange={(e) => setSku(e.target.value)} />
+          </div>
 
-        <label className={formStyles.field}>
-          <span className={formStyles.label}>Stock</span>
-          <input
-            type="number"
-            required
-            min={0}
-            value={stock}
-            onChange={(e) => setStock(Number(e.target.value))}
-            className={formStyles.input}
-          />
-        </label>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="stock">Stock</Label>
+            <Input
+              id="stock"
+              type="number"
+              required
+              min={0}
+              value={stock}
+              onChange={(e) => setStock(Number(e.target.value))}
+            />
+          </div>
 
-      <div className={formStyles.row}>
-        <label className={formStyles.field}>
-          <span className={formStyles.label}>Precio (ej. 24,90 EUR)</span>
-          <input type="text" required value={price} onChange={(e) => setPrice(e.target.value)} className={formStyles.input} />
-        </label>
+          <div className="space-y-2">
+            <Label htmlFor="price">Precio (ej. 24,90 EUR)</Label>
+            <Input id="price" required value={price} onChange={(e) => setPrice(e.target.value)} />
+          </div>
 
-        <label className={formStyles.field}>
-          <span className={formStyles.label}>Precio anterior (opcional)</span>
-          <input
-            type="text"
-            value={compareAtPrice}
-            onChange={(e) => setCompareAtPrice(e.target.value)}
-            className={formStyles.input}
-          />
-        </label>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="compareAtPrice">Precio anterior (opcional)</Label>
+            <Input id="compareAtPrice" value={compareAtPrice} onChange={(e) => setCompareAtPrice(e.target.value)} />
+          </div>
 
-      <div className={formStyles.row}>
-        <label className={formStyles.field}>
-          <span className={formStyles.label}>Categoría</span>
-          <select
-            value={categorySlug}
-            onChange={(e) => setCategorySlug(e.target.value)}
-            className={formStyles.input}
-            required
-          >
-            {categories.map((category) => (
-              <option key={category.slug} value={category.slug}>
-                {category.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          <div className="space-y-2">
+            <Label htmlFor="category">Categoría</Label>
+            <Select value={categorySlug} onValueChange={setCategorySlug}>
+              <SelectTrigger id="category">
+                <SelectValue placeholder="Selecciona una categoría" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.slug} value={category.slug}>
+                    {category.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        <label className={formStyles.field}>
-          <span className={formStyles.label}>Marca (opcional)</span>
-          <select value={brandSlug} onChange={(e) => setBrandSlug(e.target.value)} className={formStyles.input}>
-            <option value="">Sin marca</option>
-            {brands.map((brand) => (
-              <option key={brand.slug} value={brand.slug}>
-                {brand.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="brand">Marca (opcional)</Label>
+            <Select value={brandSlug} onValueChange={setBrandSlug}>
+              <SelectTrigger id="brand">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_BRAND}>Sin marca</SelectItem>
+                {brands.map((brand) => (
+                  <SelectItem key={brand.slug} value={brand.slug}>
+                    {brand.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      <label className={formStyles.field}>
-        <span className={formStyles.label}>Etiqueta (opcional, ej. &quot;Nuevo&quot;, &quot;Más vendido&quot;)</span>
-        <input type="text" value={badge} onChange={(e) => setBadge(e.target.value)} className={formStyles.input} />
-      </label>
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="badgeLabel">Etiqueta (opcional, ej. &quot;Nuevo&quot;, &quot;Más vendido&quot;)</Label>
+            <Input id="badgeLabel" value={badge} onChange={(e) => setBadge(e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <label className={formStyles.field}>
-        <span className={formStyles.label}>Imagen principal (URL)</span>
-        <input
-          type="text"
-          required
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          className={formStyles.input}
-          placeholder="https://..."
-        />
-      </label>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Imágenes</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="image">Imagen principal (URL)</Label>
+            <Input id="image" required value={image} onChange={(e) => setImage(e.target.value)} placeholder="https://..." />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="images">Imágenes de galería (una URL por línea, opcional)</Label>
+            <Textarea id="images" rows={3} value={imagesText} onChange={(e) => setImagesText(e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <label className={formStyles.field}>
-        <span className={formStyles.label}>Imágenes de galería (una URL por línea, opcional)</span>
-        <textarea
-          value={imagesText}
-          onChange={(e) => setImagesText(e.target.value)}
-          className={styles.textarea}
-          rows={3}
-        />
-      </label>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Descripción</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="shortDescription">Descripción corta (opcional)</Label>
+            <Input id="shortDescription" value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Descripción</Label>
+            <Textarea id="description" required rows={5} value={description} onChange={(e) => setDescription(e.target.value)} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <label className={formStyles.field}>
-        <span className={formStyles.label}>Descripción corta (opcional)</span>
-        <input
-          type="text"
-          value={shortDescription}
-          onChange={(e) => setShortDescription(e.target.value)}
-          className={formStyles.input}
-        />
-      </label>
+      {error && <p className="text-sm font-medium text-destructive">{error}</p>}
 
-      <label className={formStyles.field}>
-        <span className={formStyles.label}>Descripción</span>
-        <textarea
-          required
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className={styles.textarea}
-          rows={5}
-        />
-      </label>
-
-      {error && <p className={styles.error}>{error}</p>}
-
-      <div className={styles.actions}>
-        <button type="submit" className={formStyles.submit} disabled={isSubmitting}>
+      <div className="flex items-center gap-3">
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Guardando...' : mode === 'create' ? 'Crear producto' : 'Guardar cambios'}
-        </button>
-        <button type="button" className={styles.cancelButton} onClick={() => router.push('/admin/products')}>
+        </Button>
+        <Button type="button" variant="ghost" onClick={() => router.push('/admin/products')}>
           Cancelar
-        </button>
+        </Button>
       </div>
     </form>
   );
