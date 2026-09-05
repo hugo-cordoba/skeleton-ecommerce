@@ -1,8 +1,4 @@
-import Link from 'next/link';
-import { Package, ShoppingCart, Clock, AlertTriangle, ArrowRight } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 export default async function AdminDashboardPage() {
   const [productCount, orderCount, pendingOrderCount, lowStockCount] = await Promise.all([
@@ -12,62 +8,47 @@ export default async function AdminDashboardPage() {
     prisma.product.count({ where: { stock: { lte: 5 } } }),
   ]);
 
-  const stats = [
-    { label: 'Productos', value: productCount, icon: Package },
-    { label: 'Pedidos totales', value: orderCount, icon: ShoppingCart },
-    { label: 'En preparación', value: pendingOrderCount, icon: Clock },
-    { label: 'Stock bajo (≤5)', value: lowStockCount, icon: AlertTriangle },
-  ];
-
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Resumen</h1>
-        <p className="text-sm text-muted-foreground">Vista general de la tienda.</p>
+    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+          <div className="text-sm text-muted-foreground">Total Products</div>
+          <div className="text-4xl font-bold">{productCount}</div>
+        </div>
+        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+          <div className="text-sm text-muted-foreground">Total Orders</div>
+          <div className="text-4xl font-bold">{orderCount}</div>
+        </div>
+        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+          <div className="text-sm text-muted-foreground">Processing</div>
+          <div className="text-4xl font-bold">{pendingOrderCount}</div>
+        </div>
       </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map(({ label, value, icon: Icon }) => (
-          <Card key={label}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
-              <Icon className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-semibold">{value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Productos</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">Gestiona el catálogo, precios y stock.</p>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/admin/products">
-                Ver productos <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Pedidos</CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">Revisa y gestiona los pedidos entrantes.</p>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/admin/orders">
-                Ver pedidos <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min p-6">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold">Recent Activity</h2>
+          <p className="text-sm text-muted-foreground">Overview of your store's recent activity</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-lg border bg-card p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-medium">Products</div>
+              <div className="text-xs text-muted-foreground">Total: {productCount}</div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Manage your catalog, prices and inventory
+            </div>
+          </div>
+          <div className="rounded-lg border bg-card p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-medium">Low Stock Alert</div>
+              <div className="text-xs text-destructive">{lowStockCount} items</div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Products with stock ≤5 units need attention
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -14,9 +14,11 @@ export default async function EditProductPage({ params }: { params: { id: string
   if (!product) notFound();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Editar producto</h1>
-      <ProductForm mode="edit" productId={product.id} initialData={product} categories={categories} brands={brands} />
+    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      <div className="space-y-6">
+        <h1 className="text-2xl font-semibold tracking-tight">Editar producto</h1>
+        <ProductForm mode="edit" productId={product.id} initialData={product} categories={categories} brands={brands} />
+      </div>
     </div>
   );
 }
