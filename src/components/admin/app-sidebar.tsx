@@ -1,98 +1,163 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import {
+  Store,
   LayoutDashboard,
   Package,
   ShoppingCart,
-  Store,
-  ChevronsUpDown,
+  Settings2,
 } from "lucide-react"
 
+import { NavMain } from "@/components/admin/nav-main"
+import { NavUser } from "@/components/admin/nav-user"
+import { TeamSwitcher } from "@/components/admin/team-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
 
-const navItems = [
-  { title: "Resumen", url: "/admin", icon: LayoutDashboard },
-  { title: "Productos", url: "/admin/productos", icon: Package },
-  { title: "Pedidos", url: "/admin/pedidos", icon: ShoppingCart },
-]
+// This is sample data.
+const data = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  teams: [
+    {
+      name: "Acme Inc",
+      logo: Store,
+      plan: "Enterprise",
+    },
+  ],
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "/admin",
+      icon: LayoutDashboard,
+      isActive: true,
+      items: [
+        {
+          title: "Overview",
+          url: "/admin",
+        },
+        {
+          title: "Analytics",
+          url: "/admin",
+        },
+        {
+          title: "Reports",
+          url: "/admin",
+        },
+      ],
+    },
+    {
+      title: "Products",
+      url: "/admin/products",
+      icon: Package,
+      items: [
+        {
+          title: "All Products",
+          url: "/admin/products",
+        },
+        {
+          title: "New Product",
+          url: "/admin/products/new",
+        },
+        {
+          title: "Categories",
+          url: "/admin/products",
+        },
+        {
+          title: "Inventory",
+          url: "/admin/products",
+        },
+      ],
+    },
+    {
+      title: "Orders",
+      url: "/admin/orders",
+      icon: ShoppingCart,
+      items: [
+        {
+          title: "All Orders",
+          url: "/admin/orders",
+        },
+        {
+          title: "Pending",
+          url: "/admin/orders",
+        },
+        {
+          title: "Completed",
+          url: "/admin/orders",
+        },
+        {
+          title: "Cancelled",
+          url: "/admin/orders",
+        },
+      ],
+    },
+    {
+      title: "Settings",
+      url: "/admin",
+      icon: Settings2,
+      items: [
+        {
+          title: "General",
+          url: "/admin",
+        },
+        {
+          title: "Store",
+          url: "/admin",
+        },
+        {
+          title: "Shipping",
+          url: "/admin",
+        },
+        {
+          title: "Payments",
+          url: "/admin",
+        },
+      ],
+    },
+  ],
+}
 
-export function AppSidebar() {
-  const pathname = usePathname()
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user?: {
+    name: string
+    email: string
+    avatar: string
+  }
+  teams?: Array<{
+    name: string
+    logo: React.ElementType
+    plan: string
+  }>
+}
+
+export function AppSidebar({ user, teams, ...props }: AppSidebarProps) {
+  const sidebarData = {
+    ...data,
+    user: user || data.user,
+    teams: teams || data.teams,
+  }
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/admin">
-                <span className="truncate font-semibold">Nombre marca</span>
-                <Badge variant="secondary" className="ml-auto">
-                  ADMIN
-                </Badge>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <TeamSwitcher teams={sidebarData.teams} />
       </SidebarHeader>
-
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavMain items={sidebarData.navMain} />
       </SidebarContent>
-
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Volver a la tienda">
-              <Link href="/">
-                <Store />
-                <span>Volver a la tienda</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <NavUser user={sidebarData.user} />
       </SidebarFooter>
-
       <SidebarRail />
     </Sidebar>
   )

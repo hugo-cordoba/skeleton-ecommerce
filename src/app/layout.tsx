@@ -12,6 +12,7 @@ import { CookieConsentProvider } from '@/context/CookieConsentContext';
 import AuthSessionProvider from '@/context/AuthSessionProvider';
 import CookieConsentBanner from '@/components/layout/CookieConsent/CookieConsentBanner';
 import CookiePreferencesModal from '@/components/layout/CookieConsent/CookiePreferencesModal';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
 import '@/lib/env';
 
@@ -38,22 +39,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="es">
       <body style={themeVars}>
-        <CookieConsentProvider>
-          <AuthSessionProvider>
-            <AuthProvider>
-              <CartProvider initialCart={initialCart}>
-                <WishlistProvider initialItems={initialWishlist}>
-                  <AddressBookProvider>
-                    <OrdersProvider initialOrders={initialOrders}>{children}</OrdersProvider>
-                  </AddressBookProvider>
-                </WishlistProvider>
-              </CartProvider>
-            </AuthProvider>
-          </AuthSessionProvider>
+        <TooltipProvider>
+          <CookieConsentProvider>
+            <AuthSessionProvider>
+              <AuthProvider>
+                <CartProvider initialCart={initialCart}>
+                  <WishlistProvider initialItems={initialWishlist}>
+                    <AddressBookProvider>
+                      <OrdersProvider initialOrders={initialOrders}>{children}</OrdersProvider>
+                    </AddressBookProvider>
+                  </WishlistProvider>
+                </CartProvider>
+              </AuthProvider>
+            </AuthSessionProvider>
 
-          <CookieConsentBanner />
-          <CookiePreferencesModal />
-        </CookieConsentProvider>
+            <CookieConsentBanner />
+            <CookiePreferencesModal />
+          </CookieConsentProvider>
+        </TooltipProvider>
       </body>
     </html>
   );
