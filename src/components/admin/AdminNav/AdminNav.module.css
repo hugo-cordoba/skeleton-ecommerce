@@ -1,0 +1,28 @@
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.link {
+  display: block;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.link:hover {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.link[data-active='true'] {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  font-weight: 600;
+}
