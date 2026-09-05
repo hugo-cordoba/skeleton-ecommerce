@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { siteConfig } from '@/config/site.config';
-import { Store } from 'lucide-react';
 import { AppSidebar } from '@/components/admin/app-sidebar';
 import {
   Breadcrumb,
@@ -33,17 +32,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     avatar: session.user.image || '/avatars/default.jpg',
   };
 
-  const teams = [
-    {
-      name: siteConfig.name,
-      logo: Store,
-      plan: 'Admin Panel',
-    },
-  ];
-
   return (
     <SidebarProvider>
-      <AppSidebar user={user} teams={teams} />
+      <AppSidebar user={user} teamName={siteConfig.name} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
