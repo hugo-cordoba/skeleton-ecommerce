@@ -1,5 +1,3 @@
-'use server';
-
 import { Prisma } from '@prisma/client';
 import { requireAdmin } from '@/lib/admin-auth';
 

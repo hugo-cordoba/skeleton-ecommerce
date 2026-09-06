@@ -14,6 +14,10 @@ import CookieConsentBanner from '@/components/layout/CookieConsent/CookieConsent
 import CookiePreferencesModal from '@/components/layout/CookieConsent/CookiePreferencesModal';
 import './globals.css';
 import '@/lib/env';
+import { Inter } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -36,7 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   } as React.CSSProperties;
 
   return (
-    <html lang="es">
+    <html lang="es" className={cn("font-sans", inter.variable)}>
       <body style={themeVars}>
         <CookieConsentProvider>
           <AuthSessionProvider>
