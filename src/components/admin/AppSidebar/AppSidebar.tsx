@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FolderTree, LayoutDashboard, ShoppingBag, Store } from 'lucide-react';
+import { FolderTree, LayoutDashboard, Package, ShoppingBag, Store } from 'lucide-react';
 
 import { siteConfig } from '@/config/site.config';
 import NavUser from '@/components/admin/NavUser/NavUser';
@@ -23,6 +23,7 @@ import {
 // (Productos, Marcas...) solo hace falta un objeto más aquí.
 const navMain = [
   { title: 'Inicio', href: '/admin', icon: LayoutDashboard },
+  { title: 'Productos', href: '/admin/products', icon: Package },
   { title: 'Categorías', href: '/admin/categories', icon: FolderTree },
   { title: 'Pedidos', href: '/admin/orders', icon: ShoppingBag },
 ];

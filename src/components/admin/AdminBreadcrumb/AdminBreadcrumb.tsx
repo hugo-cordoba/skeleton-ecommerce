@@ -7,6 +7,8 @@ import { ChevronRight } from 'lucide-react';
 
 const sectionLabels: Record<string, string> = {
   admin: 'Inicio',
+  products: 'Productos',
+  new: 'Nuevo',
   categories: 'Categorías',
   orders: 'Pedidos',
 };
