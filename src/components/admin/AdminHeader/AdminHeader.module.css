@@ -64,6 +64,33 @@
   color: var(--color-text);
 }
 
+.nav {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+}
+
+.navLink {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--color-text);
+}
+
+.navLink[data-active='true'] {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .nav {
+    display: none; /* cae en el drawer móvil cuando lo montes */
+  }
+}
+
 @media (max-width: 640px) {
   .header {
     flex-wrap: wrap;
