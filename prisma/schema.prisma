@@ -55,11 +55,16 @@ model Brand {
   products Product[]
 }
 
+enum ProductStatus {
+  ACTIVE
+  ARCHIVED
+}
+
 model Product {
-  id                 String   @id @default(cuid())
-  slug               String   @unique
+  id                 String        @id @default(cuid())
+  slug               String        @unique
   name               String
-  price              String   // se conserva formato "19,90 EUR" para no tocar currency.ts todavía
+  price              String        // se conserva formato "19,90 EUR" para no tocar currency.ts todavía
   compareAtPrice     String?
   image              String
   images             String[]
@@ -67,14 +72,15 @@ model Product {
   badge              String?
   description        String
   shortDescription   String?
-  sku                String   @unique
-  stock              Int      @default(0)
+  sku                String        @unique
+  stock              Int           @default(0)
+  status             ProductStatus @default(ACTIVE)
 
   categorySlug       String
-  category           Category @relation(fields: [categorySlug], references: [slug])
+  category           Category      @relation(fields: [categorySlug], references: [slug])
 
   brandSlug          String?
-  brand              Brand?   @relation(fields: [brandSlug], references: [slug])
+  brand              Brand?        @relation(fields: [brandSlug], references: [slug])
 
   variantGroups      ProductVariantGroup[]
   relatedIds         String[] // ids de productos relacionados explícitos
@@ -83,8 +89,10 @@ model Product {
   wishlistItems      WishlistItem[]
   orderItems         OrderItem[]
 
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@index([status])
 }
 
 model ProductVariantGroup {

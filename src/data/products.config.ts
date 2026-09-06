@@ -20,6 +20,7 @@ function toProductDetail(p: any): ProductDetail {
     brandLabel: p.brand?.label ?? undefined,
     sku: p.sku,
     stock: p.stock,
+    status: p.status,
     relatedIds: p.relatedIds,
     variants: p.variantGroups?.map((g: any) => ({
       id: g.id,
@@ -31,8 +32,18 @@ function toProductDetail(p: any): ProductDetail {
 
 const include = { category: true, brand: true, variantGroups: { include: { options: true } } };
 
+/**
+ * Filtro que aplican todas las consultas orientadas al escaparate: un
+ * producto archivado sigue existiendo en BD (lo necesitan los OrderItem
+ * históricos), pero deja de aparecer en listados, búsqueda y relacionados.
+ * `getProductBySlug` es la única excepción, sin filtrar a propósito: el
+ * futuro CRUD de admin (Fase C) también la usará para poder editar un
+ * producto ya archivado.
+ */
+const ACTIVE_ONLY = { status: 'ACTIVE' as const };
+
 export async function getAllProducts(): Promise<ProductDetail[]> {
-  const rows = await prisma.product.findMany({ include });
+  const rows = await prisma.product.findMany({ where: ACTIVE_ONLY, include });
   return rows.map(toProductDetail);
 }
 
@@ -42,27 +53,30 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | un
 }
 
 export async function getProductsByCategory(categorySlug: string): Promise<ProductDetail[]> {
-  const rows = await prisma.product.findMany({ where: { categorySlug }, include });
+  const rows = await prisma.product.findMany({ where: { categorySlug, ...ACTIVE_ONLY }, include });
   return rows.map(toProductDetail);
 }
 
 export async function getProductsByBrand(brandSlug: string): Promise<ProductDetail[]> {
-  const rows = await prisma.product.findMany({ where: { brandSlug }, include });
+  const rows = await prisma.product.findMany({ where: { brandSlug, ...ACTIVE_ONLY }, include });
   return rows.map(toProductDetail);
 }
 
 export async function getFeaturedProducts(limit = 4): Promise<ProductDetail[]> {
-  const rows = await prisma.product.findMany({ take: limit, include });
+  const rows = await prisma.product.findMany({ where: ACTIVE_ONLY, take: limit, include });
   return rows.map(toProductDetail);
 }
 
 export async function getRelatedProducts(product: ProductDetail, limit = 4): Promise<ProductDetail[]> {
   if (product.relatedIds && product.relatedIds.length > 0) {
-    const rows = await prisma.product.findMany({ where: { id: { in: product.relatedIds } }, include });
+    const rows = await prisma.product.findMany({
+      where: { id: { in: product.relatedIds }, ...ACTIVE_ONLY },
+      include,
+    });
     return rows.map(toProductDetail).slice(0, limit);
   }
   const rows = await prisma.product.findMany({
-    where: { categorySlug: product.categorySlug, id: { not: product.id } },
+    where: { categorySlug: product.categorySlug, id: { not: product.id }, ...ACTIVE_ONLY },
     take: limit,
     include,
   });
@@ -78,6 +92,7 @@ export async function searchProducts(query: string): Promise<ProductDetail[]> {
   if (!normalized) return [];
   const rows = await prisma.product.findMany({
     where: {
+      ...ACTIVE_ONLY,
       OR: [
         { name: { contains: normalized, mode: 'insensitive' } },
         { category: { label: { contains: normalized, mode: 'insensitive' } } },

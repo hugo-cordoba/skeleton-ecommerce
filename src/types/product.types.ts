@@ -47,6 +47,8 @@ export interface ProductVariantGroup {
  * espere un `Product` (ProductCard, ProductCarousel, FeatureBanner).
  */
 
+export type ProductStatus = 'ACTIVE' | 'ARCHIVED';
+
 export interface ProductDetail extends Product {
   images: string[];
   description: string;
@@ -58,6 +60,7 @@ export interface ProductDetail extends Product {
   compareAtPrice?: string;
   sku: string;
   stock: number;
+  status: ProductStatus;
   variants?: ProductVariantGroup[];
   relatedIds?: string[];
 }
