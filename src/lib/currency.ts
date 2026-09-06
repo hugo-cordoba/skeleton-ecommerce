@@ -26,3 +26,13 @@ export function formatPrice(amount: number): string {
     currency: 'EUR',
   }).format(amount);
 }
+
+/**
+ * Inverso de parsePriceToNumber. Los formularios de /admin trabajan con
+ * un <input type="number">, pero Product.price se guarda como texto
+ * ("24,90 EUR") para no romper el resto de la app -- esta función hace
+ * la conversión al guardar.
+ */
+export function toPriceString(amount: number): string {
+  return `${amount.toFixed(2).replace('.', ',')} EUR`;
+}

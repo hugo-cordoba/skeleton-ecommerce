@@ -1,0 +1,133 @@
+/* Sin padding horizontal propio: admin/Admin.module.css ya lo aplica
+   al <main> que envuelve esta página. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 500;
+}
+
+.addButton {
+  padding: 0.65rem 1.25rem;
+  border-radius: 999px;
+  border: none;
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.addButton:hover {
+  transform: translateY(-1px);
+  background-color: var(--color-primary-light);
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.cancelButton {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cancelButton:hover {
+  color: var(--color-text);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.error {
+  font-size: 0.85rem;
+  color: #c0392b;
+}
+
+.empty {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  vertical-align: middle;
+}
+
+.slugCell {
+  color: var(--color-text-muted);
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.actionsCell {
+  display: flex;
+  gap: 1rem;
+  white-space: nowrap;
+}
+
+.actionsCell button {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.actionsCell button:hover:not(:disabled) {
+  color: var(--color-text);
+}
+
+.actionsCell button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: none;
+}
