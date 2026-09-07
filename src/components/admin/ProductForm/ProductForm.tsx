@@ -14,6 +14,8 @@ import {
 import type { ProductStatus } from '@/types/product.types';
 import formStyles from '@/components/checkout/checkoutForm.module.css';
 import styles from './ProductForm.module.css';
+import ImageUploadField from '@/components/admin/ImageUploadField/ImageUploadField';
+import { deleteProductImageAction } from '@/lib/actions/admin/upload.actions';
 
 interface VariantOptionState {
   localId: string;
@@ -208,6 +210,17 @@ export default function ProductForm({ product, categories, brands }: ProductForm
       return;
     }
 
+    // Limpieza best-effort de R2: imágenes que estaban en el producto y ya no
+    // están en el guardado final. Solo tiene sentido al editar (en creación no
+    // hay nada previo que limpiar).
+    if (product) {
+      const finalUrls = new Set(input.images.filter(Boolean));
+      const removedUrls = product.images.filter((url) => !finalUrls.has(url));
+      removedUrls.forEach((url) => {
+        void deleteProductImageAction(url);
+      });
+    }
+
     router.push('/admin/products');
   }
 
@@ -360,18 +373,15 @@ export default function ProductForm({ product, categories, brands }: ProductForm
       <div className={formStyles.section}>
         <h2 className={formStyles.sectionTitle}>Imágenes</h2>
         <p className={styles.hint}>
-          Pega URLs de imágenes ya subidas (CDN u Object Storage). La primera es la imagen principal del listado.
+          Sube una imagen (se guarda en R2) o pega la URL de una ya subida. La primera es la imagen principal del listado.
         </p>
 
         {images.map((image, index) => (
           <div key={image.localId} className={styles.repeatableRow}>
-            <input
-              type="text"
-              required={index === 0}
-              placeholder="https://.../producto.jpg"
+            <ImageUploadField
               value={image.url}
-              onChange={(e) => updateImage(image.localId, e.target.value)}
-              className={formStyles.input}
+              onChange={(url) => updateImage(image.localId, url)}
+              required={index === 0}
             />
             <button
               type="button"
