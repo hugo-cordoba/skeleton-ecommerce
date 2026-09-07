@@ -35,7 +35,7 @@ export const landingSections: SectionConfig[] = [
         'Descripcion breve y clara de la propuesta de valor. Sustituye este texto por el del cliente.',
       media: {
         type: 'image',
-        src: 'https://placehold.co/1600x900/e4e4e7/a1a1aa?text=Video+o+imagen+de+fondo',
+        src: '/banner.png',
       },
       ctaLabel: 'Ver catalogo',
       ctaHref: '#productos',
