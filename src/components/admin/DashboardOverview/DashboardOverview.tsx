@@ -71,6 +71,7 @@ export default function DashboardOverview({ stats }: { stats: DashboardStats }) 
       value: String(stats.totalCustomers),
       sub: 'Cuentas registradas',
       icon: Users,
+      href: '/admin/customers',
     },
   ];
 

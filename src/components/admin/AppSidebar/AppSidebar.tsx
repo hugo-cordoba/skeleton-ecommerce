@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FolderTree, LayoutDashboard, Package, ShoppingBag, Store, Tag } from 'lucide-react';
+import { FolderTree, LayoutDashboard, Package, ShoppingBag, Store, Tag, Users } from 'lucide-react';
 import { siteConfig } from '@/config/site.config';
 import NavUser from '@/components/admin/NavUser/NavUser';
 import {
@@ -25,6 +25,7 @@ const navMain = [
   { title: 'Productos', href: '/admin/products', icon: Package },
   { title: 'Categorías', href: '/admin/categories', icon: FolderTree },
   { title: 'Marcas', href: '/admin/brands', icon: Tag },
+  { title: 'Clientes', href: '/admin/customers', icon: Users },
   { title: 'Pedidos', href: '/admin/orders', icon: ShoppingBag },
 ];
 

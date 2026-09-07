@@ -11,6 +11,7 @@ const sectionLabels: Record<string, string> = {
   new: 'Nuevo',
   categories: 'Categorías',
   brands: 'Marcas',
+  customers: 'Clientes',
   orders: 'Pedidos',
 };
 
