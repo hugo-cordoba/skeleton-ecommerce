@@ -18,3 +18,9 @@
   color: var(--color-primary);
   border-color: var(--color-primary);
 }
+
+.select[data-status='cancelled'] {
+  color: #c0392b;
+  border-color: #c0392b;
+  cursor: default;
+}

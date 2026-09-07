@@ -28,7 +28,7 @@ export interface ShippingMethod {
 }
 
 /** Estado del pedido, en minúsculas en el cliente; se mapea desde/hacia el enum OrderStatus de Prisma. */
-export type OrderStatus = 'processing' | 'shipped' | 'delivered';
+export type OrderStatus = 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
 export interface OrderItem {
   id: string;

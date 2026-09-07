@@ -37,6 +37,8 @@ export function statusToClient(status: PrismaOrderStatus): OrderStatus {
       return 'shipped';
     case PrismaOrderStatus.DELIVERED:
       return 'delivered';
+    case PrismaOrderStatus.CANCELLED:
+      return 'cancelled';
     default:
       return 'processing';
   }
@@ -48,6 +50,8 @@ export function statusToPrisma(status: OrderStatus): PrismaOrderStatus {
       return PrismaOrderStatus.SHIPPED;
     case 'delivered':
       return PrismaOrderStatus.DELIVERED;
+    case 'cancelled':
+      return PrismaOrderStatus.CANCELLED;
     default:
       return PrismaOrderStatus.PROCESSING;
   }

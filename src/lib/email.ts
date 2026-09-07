@@ -10,6 +10,8 @@
  * Si no hay RESEND_API_KEY (tipico en local), el email se imprime por
  * consola en vez de enviarse, para no romper el flujo en desarrollo.
  */
+import { formatPrice } from '@/lib/currency';
+import type { Order } from '@/types/order.types';
 
 interface SendEmailInput {
   to: string;
@@ -66,6 +68,38 @@ export function passwordChangedEmailHtml(): string {
       <h2>Tu contraseña ha cambiado</h2>
       <p>Confirmamos que la contraseña de tu cuenta se ha actualizado correctamente.</p>
       <p>Si no has sido tú, contacta con nosotros de inmediato respondiendo a este email.</p>
+    </div>
+  `;
+}
+
+export function orderConfirmationEmailHtml(order: Order): string {
+  const itemsHtml = order.items
+    .map(
+      (item) => `
+        <tr>
+          <td style="padding:8px 0;">${item.name} × ${item.quantity}</td>
+          <td style="padding:8px 0; text-align:right;">${formatPrice(item.unitPrice * item.quantity)}</td>
+        </tr>`
+    )
+    .join('');
+
+  const { shippingAddress, shippingMethod } = order;
+
+  return `
+    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+      <h2>Confirmación de tu pedido ${order.orderNumber}</h2>
+      <p>Hola ${shippingAddress.fullName}, aquí tienes el resumen de tu pedido.</p>
+      <table style="width:100%; border-collapse:collapse; margin: 16px 0;">
+        ${itemsHtml}
+      </table>
+      <p><strong>Total: ${formatPrice(order.total)}</strong></p>
+      <p>Envío: ${shippingMethod.label} (${shippingMethod.etaLabel})</p>
+      <p>
+        Dirección de envío:<br/>
+        ${shippingAddress.addressLine1}${shippingAddress.addressLine2 ? `, ${shippingAddress.addressLine2}` : ''}<br/>
+        ${shippingAddress.postalCode} ${shippingAddress.city}, ${shippingAddress.country}
+      </p>
+      <p>Gracias por tu compra.</p>
     </div>
   `;
 }

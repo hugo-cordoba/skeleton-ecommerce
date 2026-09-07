@@ -156,6 +156,13 @@ model CartItem {
   @@unique([guestId, lineId])
 }
 
+enum OrderStatus {
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 model Order {
   id               String      @id @default(cuid())
   orderNumber      String      @unique
@@ -181,18 +188,20 @@ model Order {
   total            Float
   status           OrderStatus @default(PROCESSING)
 
+  // Reembolsos / cancelación
+  refundedAmount   Float?
+  refundedAt       DateTime?
+  cancelledAt      DateTime?
+
+  // Notas del equipo, nunca visibles para el cliente
+  internalNotes    String?
+
   items            OrderItem[]
 
   createdAt        DateTime    @default(now())
 
   @@index([userId])
   @@index([guestId])
-}
-
-enum OrderStatus {
-  PROCESSING
-  SHIPPED
-  DELIVERED
 }
 
 model OrderItem {

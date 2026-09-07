@@ -11,6 +11,13 @@ const STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
   { value: 'delivered', label: 'Entregado' },
 ];
 
+const STATUS_LABELS: Record<OrderStatus, string> = {
+  processing: 'En preparación',
+  shipped: 'Enviado',
+  delivered: 'Entregado',
+  cancelled: 'Cancelado',
+};
+
 interface OrderStatusSelectProps {
   orderNumber: string;
   status: OrderStatus;
@@ -19,6 +26,15 @@ interface OrderStatusSelectProps {
 
 export default function OrderStatusSelect({ orderNumber, status, onChange }: OrderStatusSelectProps) {
   const [isPending, startTransition] = useTransition();
+
+  // Estado terminal: se gestiona desde la acción de reembolso, no aquí.
+  if (status === 'cancelled') {
+    return (
+      <span className={styles.select} data-status="cancelled" aria-label={`Estado del pedido ${orderNumber}`}>
+        {STATUS_LABELS.cancelled}
+      </span>
+    );
+  }
 
   function handleChange(event: ChangeEvent<HTMLSelectElement>) {
     const next = event.target.value as OrderStatus;
