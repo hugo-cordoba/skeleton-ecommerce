@@ -4,8 +4,13 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { randomBytes, createHash } from 'crypto';
 import { sendEmail, passwordResetEmailHtml, passwordChangedEmailHtml } from '@/lib/email';
+import { checkRateLimitByIp } from '@/lib/rate-limit';
 
 export async function registerUser(fullName: string, email: string, password: string) {
+  const rateLimit = checkRateLimitByIp('register', { limit: 5, windowMs: 60 * 60 * 1000 });
+  if (!rateLimit.allowed) {
+    return { ok: false, error: 'Demasiados intentos de registro. Inténtalo de nuevo más tarde.' };
+  }
   const normalizedEmail = email.trim().toLowerCase();
 
   const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
@@ -51,6 +56,11 @@ function hashToken(token: string): string {
  * emails están registrados.
  */
 export async function requestPasswordResetAction(email: string): Promise<{ ok: true }> {
+  // Mismo criterio que el cooldown por usuario de más abajo: si se supera
+  // el límite, no se filtra nada -- simplemente no se envía el email.
+  const rateLimit = checkRateLimitByIp('password-reset', { limit: 5, windowMs: 60 * 60 * 1000 });
+  if (!rateLimit.allowed) return { ok: true };
+
   const normalizedEmail = email.trim().toLowerCase();
   const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 

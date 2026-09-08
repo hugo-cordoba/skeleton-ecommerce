@@ -2,6 +2,7 @@ import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import { checkRateLimitByIp } from '@/lib/rate-limit';
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
@@ -15,6 +16,12 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+
+        // Limita intentos por IP antes de tocar bcrypt/BD. Se responde
+        // igual que credenciales invalidas (null), sin distinguir el
+        // motivo, para no dar pistas a quien prueba fuerza bruta.
+        const rateLimit = checkRateLimitByIp('login', { limit: 10, windowMs: 15 * 60 * 1000 });
+        if (!rateLimit.allowed) return null;
 
         const email = credentials.email.trim().toLowerCase();
         const user = await prisma.user.findUnique({ where: { email } });

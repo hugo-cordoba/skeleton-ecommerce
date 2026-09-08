@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
+import { checkRateLimitByIp } from '@/lib/rate-limit';
 
 export interface NewsletterResult {
   ok: boolean;
@@ -17,6 +18,11 @@ function isValidEmail(email: string): boolean {
  * error de restricción única -- simplemente confirma que ya está suscrito.
  */
 export async function subscribeToNewsletterAction(email: string): Promise<NewsletterResult> {
+  const rateLimit = checkRateLimitByIp('newsletter', { limit: 10, windowMs: 60 * 60 * 1000 });
+  if (!rateLimit.allowed) {
+    return { ok: false, error: 'Demasiadas solicitudes. Inténtalo de nuevo más tarde.' };
+  }
+
   const normalizedEmail = email.trim().toLowerCase();
   if (!isValidEmail(normalizedEmail)) return { ok: false, error: 'Introduce un email válido.' };
 

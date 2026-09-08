@@ -2,6 +2,7 @@
 
 import { sendEmail } from '@/lib/email';
 import { contactContent } from '@/config/content.config';
+import { checkRateLimitByIp } from '@/lib/rate-limit';
 
 export interface ContactMessageInput {
   name: string;
@@ -25,6 +26,11 @@ function isValidEmail(email: string): boolean {
  * el cliente de correo.
  */
 export async function sendContactMessageAction(input: ContactMessageInput): Promise<ContactActionResult> {
+  const rateLimit = checkRateLimitByIp('contact', { limit: 5, windowMs: 60 * 60 * 1000 });
+  if (!rateLimit.allowed) {
+    return { ok: false, error: 'Has enviado demasiados mensajes. Inténtalo de nuevo más tarde.' };
+  }
+
   const name = input.name.trim();
   const email = input.email.trim();
   const message = input.message.trim();

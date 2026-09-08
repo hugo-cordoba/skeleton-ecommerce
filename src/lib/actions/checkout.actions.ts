@@ -32,6 +32,20 @@ export async function createCheckoutSessionAction(
   const cartItems = await prisma.cartItem.findMany({ where, include: { product: true } });
   if (cartItems.length === 0) throw new Error('El carrito está vacío.');
 
+  // Revalidación de stock: el carrito puede quedarse desactualizado (otro
+  // comprador agotó el producto, o el admin lo archivó / bajó el stock)
+  // entre que se añadió al carrito y que se llega aquí. Nunca se confía en
+  // la cantidad guardada en CartItem sin comprobarla contra el estado actual.
+  const outOfStock = cartItems.filter(
+    (item) => item.product.status !== 'ACTIVE' || item.quantity > item.product.stock
+  );
+  if (outOfStock.length > 0) {
+    const names = outOfStock.map((item) => item.product.name).join(', ');
+    throw new Error(
+      `Ya no hay stock suficiente de: ${names}. Actualiza las cantidades en tu cesta antes de continuar.`
+    );
+  }
+
   const shippingMethod = shippingMethods.find((method) => method.id === input.shippingMethodId);
   if (!shippingMethod) throw new Error('Método de envío no válido.');
 

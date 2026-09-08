@@ -39,7 +39,11 @@ export default function CheckoutPaymentPage() {
       window.location.href = url;
     } catch (error) {
       console.error('No se pudo iniciar el pago:', error);
-      setSubmitError('No se ha podido iniciar el pago. Inténtalo de nuevo.');
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : 'No se ha podido iniciar el pago. Inténtalo de nuevo.';
+      setSubmitError(message);
       setIsRedirecting(false);
     }
   }
