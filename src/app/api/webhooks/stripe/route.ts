@@ -1,3 +1,4 @@
+// src/app/api/webhooks/stripe/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
@@ -5,6 +6,8 @@ import { prisma } from '@/lib/prisma';
 import { parsePriceToNumber } from '@/lib/currency';
 import { shippingMethods } from '@/data/shipping.config';
 import { generateOrderNumber } from '@/lib/order-number';
+import { sendEmail, orderConfirmationEmailHtml } from '@/lib/email';
+import { toOrderDTO, type OrderRow } from '@/lib/order-mapper';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -46,7 +49,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const createdOrder = await prisma.$transaction(async (tx) => {
       const cartItems = await tx.cartItem.findMany({ where, include: { product: true } });
       if (cartItems.length === 0) throw new Error('El carrito ya estaba vacío al procesar el pago.');
 
@@ -61,7 +64,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         0
       );
 
-      await tx.order.create({
+      const order = await tx.order.create({
         data: {
           orderNumber: generateOrderNumber(),
           stripeSessionId: session.id,
@@ -91,6 +94,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             })),
           },
         },
+        // Necesitamos los items de vuelta para poder montar el email de
+        // confirmación justo después, sin hacer una segunda consulta.
+        include: { items: true },
       });
 
       // Descuento de stock real (punto 2), en la misma transacción que
@@ -103,7 +109,15 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       }
 
       await tx.cartItem.deleteMany({ where });
+
+      return order;
     });
+
+    // A partir de aquí el pedido ya está persistido y el pago confirmado.
+    // El email es "best effort": si falla el envío NO revertimos el pedido
+    // ni disparamos el reembolso automático del catch de abajo -- ese
+    // reembolso es solo para cuando el pedido en sí no se pudo crear.
+    await sendOrderConfirmationEmail(createdOrder);
   } catch (error) {
     console.error('No se pudo completar el pedido tras el pago:', error);
 
@@ -117,5 +131,30 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         console.error('Falló también el reembolso automático -- revisar a mano:', refundError);
       }
     }
+  }
+}
+
+/**
+ * Envía el email de confirmación tras un pago con éxito. Reutiliza el
+ * mismo helper (sendEmail + orderConfirmationEmailHtml + toOrderDTO) que
+ * usa el botón "Reenviar email" de /admin/orders/[orderNumber], así el
+ * formato es idéntico en ambos casos. Nunca lanza: un fallo de envío se
+ * registra en logs pero no debe afectar al pedido, que ya está creado y
+ * pagado en este punto.
+ */
+async function sendOrderConfirmationEmail(row: OrderRow): Promise<void> {
+  try {
+    const order = toOrderDTO(row);
+    const result = await sendEmail({
+      to: order.email,
+      subject: `Confirmación de tu pedido ${order.orderNumber}`,
+      html: orderConfirmationEmailHtml(order),
+    });
+
+    if (!result.ok) {
+      console.error('No se ha podido enviar el email de confirmación del pedido:', order.orderNumber, result.error);
+    }
+  } catch (error) {
+    console.error('Error inesperado enviando el email de confirmación del pedido:', error);
   }
 }
