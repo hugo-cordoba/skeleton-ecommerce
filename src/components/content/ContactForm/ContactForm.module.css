@@ -65,3 +65,8 @@
   color: var(--color-text);
   line-height: 1.6;
 }
+
+.error {
+  font-size: 0.85rem;
+  color: #c0392b;
+}

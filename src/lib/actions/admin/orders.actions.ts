@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 import { requireAdmin } from '@/lib/admin-auth';
-import { sendEmail, orderConfirmationEmailHtml } from '@/lib/email';
+import { sendEmail, orderConfirmationEmailHtml, orderStatusUpdateEmailHtml, orderRefundEmailHtml } from '@/lib/email';
 import { runAdminAction, type AdminActionResult } from './admin-utils';
 import { statusToClient, statusToPrisma, toOrderDTO } from '@/lib/order-mapper';
 import type { Order, OrderStatus, ShippingAddress } from '@/types/order.types';
@@ -34,6 +34,43 @@ export interface AdminOrdersQuery {
 }
 
 const DEFAULT_PAGE_SIZE = 20;
+
+/** Best-effort, igual que sendOrderConfirmationEmail del webhook: un fallo de envío no debe tumbar la action. */
+async function sendOrderStatusEmail(row: Parameters<typeof toOrderDTO>[0], status: 'shipped' | 'delivered'): Promise<void> {
+  try {
+    const order = toOrderDTO(row);
+    const statusLabel = status === 'shipped' ? 'enviado' : 'entregado';
+    const result = await sendEmail({
+      to: order.email,
+      subject: `Tu pedido ${order.orderNumber} ha sido ${statusLabel}`,
+      html: orderStatusUpdateEmailHtml(order, status),
+    });
+    if (!result.ok) {
+      console.error('No se ha podido enviar el email de estado del pedido:', order.orderNumber, result.error);
+    }
+  } catch (error) {
+    console.error('Error inesperado enviando el email de estado del pedido:', error);
+  }
+}
+
+async function sendOrderRefundEmail(
+  row: Parameters<typeof toOrderDTO>[0],
+  refundedAmount: number,
+  isFullRefund: boolean
+): Promise<void> {
+  try {
+    const order = toOrderDTO(row);
+    const subject = isFullRefund
+      ? `Tu pedido ${order.orderNumber} ha sido cancelado y reembolsado`
+      : `Reembolso parcial de tu pedido ${order.orderNumber}`;
+    const result = await sendEmail({ to: order.email, subject, html: orderRefundEmailHtml(order, refundedAmount, isFullRefund) });
+    if (!result.ok) {
+      console.error('No se ha podido enviar el email de reembolso:', order.orderNumber, result.error);
+    }
+  } catch (error) {
+    console.error('Error inesperado enviando el email de reembolso:', error);
+  }
+}
 
 export async function getAdminOrders(params: AdminOrdersQuery = {}): Promise<AdminOrdersResult> {
   await requireAdmin();
@@ -115,8 +152,6 @@ export async function updateOrderStatusAction(
   status: OrderStatus
 ): Promise<AdminActionResult<{ status: OrderStatus }>> {
   return runAdminAction(async () => {
-    // Cancelado es un estado terminal que solo se alcanza vía refundOrderAction
-    // (implica reembolso + reposición de stock); no se pone a mano aquí.
     if (status === 'cancelled') {
       throw new Error('Para cancelar un pedido usa la acción de reembolso.');
     }
@@ -125,7 +160,17 @@ export async function updateOrderStatusAction(
     if (!existing) throw new Error('El pedido no existe.');
     if (existing.status === 'CANCELLED') throw new Error('Este pedido está cancelado y no se puede modificar.');
 
-    await prisma.order.update({ where: { orderNumber }, data: { status: statusToPrisma(status) } });
+    const updated = await prisma.order.update({
+      where: { orderNumber },
+      data: { status: statusToPrisma(status) },
+      include: { items: true },
+    });
+
+    // "processing" ya lo cubre el email de confirmación; solo avisamos en los cambios que le importan al cliente.
+    if (status === 'shipped' || status === 'delivered') {
+      await sendOrderStatusEmail(updated, status);
+    }
+
     return { status };
   });
 }
@@ -194,6 +239,8 @@ export async function refundOrderAction(
         },
       });
     });
+
+    await sendOrderRefundEmail(order, amountToRefund, isFullRefund);
 
     return { status: statusToClient(nextStatus), refundedAmount: newRefundedAmount };
   });

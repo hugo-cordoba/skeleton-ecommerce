@@ -1,26 +1,33 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { sendContactMessageAction } from '@/lib/actions/contact.actions';
 import styles from './ContactForm.module.css';
 
-/**
- * Formulario de contacto. Igual que el newsletter del Footer, es
- * decorativo por ahora (sin backend): al enviarlo solo actualiza un
- * estado local para mostrar confirmacion. Conectar a una API route o
- * proveedor de email (Resend, Formspree...) cuando haya backend.
- */
 export default function ContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
+    setStatus('loading');
+    setError(null);
+
+    const result = await sendContactMessageAction({ name, email, message });
+
+    if (!result.ok) {
+      setStatus('error');
+      setError(result.error ?? 'No se ha podido enviar el mensaje.');
+      return;
+    }
+
+    setStatus('success');
   }
 
-  if (submitted) {
+  if (status === 'success') {
     return (
       <div className={styles.confirmation} role="status">
         <p>
@@ -65,8 +72,10 @@ export default function ContactForm() {
         />
       </label>
 
-      <button type="submit" className={styles.submit}>
-        Enviar mensaje
+      {error && <p className={styles.error}>{error}</p>}
+
+      <button type="submit" className={styles.submit} disabled={status === 'loading'}>
+        {status === 'loading' ? 'Enviando...' : 'Enviar mensaje'}
       </button>
     </form>
   );

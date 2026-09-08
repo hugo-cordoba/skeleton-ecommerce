@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { subscribeToNewsletter } from '@/lib/forms';
+import { subscribeToNewsletterAction } from '@/lib/actions/newsletter.actions';
 import styles from './Footer.module.css';
 
 export default function NewsletterForm({ placeholder }: { placeholder: string }) {
@@ -14,7 +14,7 @@ export default function NewsletterForm({ placeholder }: { placeholder: string })
     setStatus('loading');
     setError(null);
 
-    const result = await subscribeToNewsletter(email);
+    const result = await subscribeToNewsletterAction(email);
     if (!result.ok) {
       setStatus('error');
       setError(result.error ?? 'No se ha podido completar la suscripción.');

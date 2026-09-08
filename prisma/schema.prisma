@@ -216,3 +216,9 @@ model OrderItem {
   quantity         Int
   selectedVariants Json?
 }
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

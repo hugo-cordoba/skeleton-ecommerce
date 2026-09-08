@@ -17,9 +17,10 @@ interface SendEmailInput {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<{ ok: boolean; error?: string }> {
+export async function sendEmail({ to, subject, html, replyTo }: SendEmailInput): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM ?? 'no-reply@example.com';
 
@@ -33,7 +34,7 @@ export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from, to, subject, html }),
+      body: JSON.stringify({ from, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
     });
 
     if (!response.ok) {
@@ -103,3 +104,38 @@ export function orderConfirmationEmailHtml(order: Order): string {
     </div>
   `;
 }
+
+export function orderStatusUpdateEmailHtml(order: Order, status: 'shipped' | 'delivered'): string {
+  const statusLabel = status === 'shipped' ? 'enviado' : 'entregado';
+  const title = status === 'shipped' ? 'Tu pedido ha sido enviado' : 'Tu pedido ha sido entregado';
+
+  return `
+    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+      <h2>${title}</h2>
+      <p>Hola, tu pedido <strong>${order.orderNumber}</strong> ha sido marcado como <strong>${statusLabel}</strong>.</p>
+      <p>
+        Dirección de envío:<br/>
+        ${order.shippingAddress.addressLine1}${order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ''}<br/>
+        ${order.shippingAddress.postalCode} ${order.shippingAddress.city}, ${order.shippingAddress.country}
+      </p>
+      <p>Gracias por tu compra.</p>
+    </div>
+  `;
+}
+
+export function orderRefundEmailHtml(order: Order, refundedAmount: number, isFullRefund: boolean): string {
+  const title = isFullRefund
+    ? 'Tu pedido ha sido cancelado y reembolsado'
+    : 'Hemos procesado un reembolso parcial de tu pedido';
+
+  return `
+    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+      <h2>${title}</h2>
+      <p>Hola, en relación con tu pedido <strong>${order.orderNumber}</strong>:</p>
+      <p><strong>Importe reembolsado: ${formatPrice(refundedAmount)}</strong></p>
+      ${isFullRefund ? '<p>El pedido ha quedado cancelado.</p>' : '<p>El resto del pedido sigue su curso habitual.</p>'}
+      <p>El reembolso puede tardar unos días en reflejarse en tu método de pago original.</p>
+    </div>
+  `;
+}
+
