@@ -18,7 +18,7 @@ interface SendEmailInput {
   subject: string;
   html: string;
   replyTo?: string;
-  attachments?: { filename: string; content: string }[];
+  attachments?: { filename: string; content: string | Buffer }[];
 }
 
 export async function sendEmail({ to, subject, html, replyTo, attachments }: SendEmailInput): Promise<{ ok: boolean; error?: string }> {
@@ -32,6 +32,12 @@ export async function sendEmail({ to, subject, html, replyTo, attachments }: Sen
   }
 
   try {
+    // Convert Buffer attachments to base64 strings for JSON serialization
+    const serializedAttachments = attachments?.map((att) => ({
+      filename: att.filename,
+      content: Buffer.isBuffer(att.content) ? att.content.toString('base64') : att.content,
+    }));
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -41,7 +47,7 @@ export async function sendEmail({ to, subject, html, replyTo, attachments }: Sen
         subject,
         html,
         ...(replyTo ? { reply_to: replyTo } : {}),
-        ...(attachments ? { attachments } : {}),
+        ...(serializedAttachments ? { attachments: serializedAttachments } : {}),
       }),
     });
 

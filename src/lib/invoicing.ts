@@ -158,7 +158,7 @@ export async function sendInvoiceEmail(invoiceId: string): Promise<void> {
     to: invoice.order.email,
     subject: `Factura ${invoice.invoiceNumber}`,
     html: `<p>Adjuntamos la factura correspondiente a tu pedido ${invoice.order.orderNumber}.</p>`,
-    attachments: [{ filename: `${invoice.invoiceNumber}.pdf`, content: pdfBuffer.toString('base64') }],
+    attachments: [{ filename: `${invoice.invoiceNumber}.pdf`, content: pdfBuffer }],
   });
   if (!result.ok) throw new Error(result.error ?? 'No se ha podido enviar el email de la factura.');
 }

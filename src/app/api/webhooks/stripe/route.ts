@@ -131,7 +131,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     // El email es "best effort": si falla el envío NO revertimos el pedido
     // ni disparamos el reembolso automático del catch de abajo -- ese
     // reembolso es solo para cuando el pedido en sí no se pudo crear.
-    await sendOrderConfirmationEmail(createdOrder);
+    await sendOrderConfirmationEmail(createdOrder, invoice);
   } catch (error) {
     console.error('No se pudo completar el pedido tras el pago:', error);
 
@@ -162,13 +162,13 @@ async function sendOrderConfirmationEmail(
 ): Promise<void> {
   try {
     const order = toOrderDTO(row);
-    let attachments: { filename: string; content: string }[] | undefined;
+    let attachments: { filename: string; content: Buffer | string }[] | undefined;
 
     if (invoice) {
       const fullInvoice = await prisma.invoice.findUnique({ where: { id: invoice.id }, include: { items: true } });
       if (fullInvoice) {
         const pdfBuffer = await renderInvoicePdf(fullInvoice);
-        attachments = [{ filename: `${fullInvoice.invoiceNumber}.pdf`, content: pdfBuffer.toString('base64') }];
+        attachments = [{ filename: `${fullInvoice.invoiceNumber}.pdf`, content: pdfBuffer }];
       }
     }
 

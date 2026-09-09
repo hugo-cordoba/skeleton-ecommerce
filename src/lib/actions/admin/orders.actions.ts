@@ -9,6 +9,7 @@ import { runAdminAction, type AdminActionResult } from './admin-utils';
 import { statusToClient, statusToPrisma, toOrderDTO } from '@/lib/order-mapper';
 import type { Order, OrderStatus, ShippingAddress } from '@/types/order.types';
 import { generateRectificativeInvoice, sendInvoiceEmail } from '@/lib/invoicing';
+import { renderInvoicePdf } from '@/lib/invoice-pdf';
 
 export interface AdminOrderSummary {
   orderNumber: string;
@@ -328,10 +329,27 @@ export async function resendOrderConfirmationEmailAction(orderNumber: string): P
 
     const order = toOrderDTO(row);
 
+    // Buscar factura asociada al pedido para adjuntarla si existe
+    let attachments: { filename: string; content: Buffer | string }[] | undefined;
+    const invoice = await prisma.invoice.findFirst({
+      where: { orderId: row.id, status: 'ISSUED' },
+      include: { items: true },
+    });
+
+    if (invoice) {
+      try {
+        const pdfBuffer = await renderInvoicePdf(invoice);
+        attachments = [{ filename: `${invoice.invoiceNumber}.pdf`, content: pdfBuffer }];
+      } catch (error) {
+        console.error('Error renderizando PDF de factura para reenvío:', error);
+      }
+    }
+
     const result = await sendEmail({
       to: order.email,
       subject: `Confirmación de tu pedido ${order.orderNumber}`,
       html: orderConfirmationEmailHtml(order),
+      attachments,
     });
 
     if (!result.ok) throw new Error(result.error ?? 'No se ha podido reenviar el email.');
