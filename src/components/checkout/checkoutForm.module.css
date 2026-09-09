@@ -149,6 +149,14 @@
   color: var(--color-text);
 }
 
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
 @media (max-width: 800px) {
   .page {
     grid-template-columns: 1fr;

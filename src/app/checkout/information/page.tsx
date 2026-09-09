@@ -20,6 +20,9 @@ export default function CheckoutInformationPage() {
   const [postalCode, setPostalCode] = useState(shippingAddress?.postalCode ?? '');
   const [country, setCountry] = useState(shippingAddress?.country ?? 'España');
   const [phone, setPhone] = useState(shippingAddress?.phone ?? '');
+  const [requestsInvoice, setRequestsInvoice] = useState(contactInfo?.requestsInvoice ?? false);
+  const [buyerNif, setBuyerNif] = useState(contactInfo?.buyerNif ?? '');
+  const [buyerLegalName, setBuyerLegalName] = useState(contactInfo?.buyerLegalName ?? '');
 
   // Sin cesta no hay nada que tramitar.
   useEffect(() => {
@@ -33,7 +36,12 @@ export default function CheckoutInformationPage() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setContactInfo({ email });
+    setContactInfo({
+      email,
+      requestsInvoice,
+      buyerNif: requestsInvoice ? buyerNif : undefined,
+      buyerLegalName: requestsInvoice ? buyerLegalName : undefined,
+    });
     setShippingAddress({
       fullName,
       addressLine1,
@@ -66,6 +74,35 @@ export default function CheckoutInformationPage() {
               className={styles.input}
             />
           </label>
+          <label className={styles.checkboxRow}>
+            <input type="checkbox" checked={requestsInvoice} onChange={(e) => setRequestsInvoice(e.target.checked)} />
+            <span>Necesito factura con NIF/CIF (autónomo o empresa)</span>
+          </label>
+
+          {requestsInvoice && (
+            <>
+              <label className={styles.field}>
+                <span className={styles.label}>NIF / CIF</span>
+                <input
+                  type="text"
+                  required
+                  value={buyerNif}
+                  onChange={(e) => setBuyerNif(e.target.value)}
+                  className={styles.input}
+                />
+              </label>
+              <label className={styles.field}>
+                <span className={styles.label}>Nombre o razón social</span>
+                <input
+                  type="text"
+                  required
+                  value={buyerLegalName}
+                  onChange={(e) => setBuyerLegalName(e.target.value)}
+                  className={styles.input}
+                />
+              </label>
+            </>
+          )}
         </div>
 
         <div className={styles.section}>

@@ -14,6 +14,7 @@ import { formatPrice } from '@/lib/currency';
 import OrderStatusSelect from '@/components/admin/OrderStatusSelect/OrderStatusSelect';
 import formStyles from '@/components/checkout/checkoutForm.module.css';
 import styles from './AdminOrderDetailClient.module.css';
+import InvoiceSection from './InvoiceSection';
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -181,6 +182,8 @@ export default function AdminOrderDetailClient({ order: initialOrder }: { order:
           <span className={styles.cardSubvalue}>{order.shippingAddress.phone ?? '—'}</span>
         </div>
       </div>
+
+      <InvoiceSection orderNumber={order.orderNumber} />
 
       <section className={styles.section}>
         <div className={styles.sectionHeader}>

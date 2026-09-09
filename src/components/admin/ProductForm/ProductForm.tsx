@@ -16,6 +16,7 @@ import formStyles from '@/components/checkout/checkoutForm.module.css';
 import styles from './ProductForm.module.css';
 import ImageUploadField from '@/components/admin/ImageUploadField/ImageUploadField';
 import { deleteProductImageAction } from '@/lib/actions/admin/upload.actions';
+import { TAX_RATE_OPTIONS, DEFAULT_TAX_RATE } from '@/lib/tax';
 
 interface VariantOptionState {
   localId: string;
@@ -77,6 +78,7 @@ export default function ProductForm({ product, categories, brands }: ProductForm
   const [badge, setBadge] = useState(product?.badge ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [shortDescription, setShortDescription] = useState(product?.shortDescription ?? '');
+  const [taxRate, setTaxRate] = useState<number>(product?.taxRate ?? DEFAULT_TAX_RATE);
 
   const [images, setImages] = useState<ImageState[]>(() =>
     product && product.images.length > 0
@@ -199,6 +201,7 @@ export default function ProductForm({ product, categories, brands }: ProductForm
         label: group.label,
         options: group.options.map((option) => ({ label: option.label, available: option.available })),
       })),
+      taxRate,
     };
 
     setIsSubmitting(true);
@@ -335,6 +338,17 @@ export default function ProductForm({ product, categories, brands }: ProductForm
             <select value={status} onChange={(e) => setStatus(e.target.value as ProductStatus)} className={formStyles.input}>
               <option value="ACTIVE">Activo</option>
               <option value="ARCHIVED">Archivado</option>
+            </select>
+          </label>
+
+          <label className={formStyles.field}>
+            <span className={formStyles.label}>Tipo de IVA</span>
+            <select value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))} className={formStyles.input}>
+              {TAX_RATE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </label>
         </div>

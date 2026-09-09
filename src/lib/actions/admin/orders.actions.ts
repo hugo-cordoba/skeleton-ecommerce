@@ -8,6 +8,7 @@ import { sendEmail, orderConfirmationEmailHtml, orderStatusUpdateEmailHtml, orde
 import { runAdminAction, type AdminActionResult } from './admin-utils';
 import { statusToClient, statusToPrisma, toOrderDTO } from '@/lib/order-mapper';
 import type { Order, OrderStatus, ShippingAddress } from '@/types/order.types';
+import { generateRectificativeInvoice, sendInvoiceEmail } from '@/lib/invoicing';
 
 export interface AdminOrderSummary {
   orderNumber: string;
@@ -239,6 +240,16 @@ export async function refundOrderAction(
         },
       });
     });
+
+    const originalInvoice = await prisma.invoice.findFirst({ where: { orderId: order.id, status: 'ISSUED' } });
+    if (originalInvoice) {
+      try {
+        const rectificative = await generateRectificativeInvoice(originalInvoice.id, amountToRefund);
+        await sendInvoiceEmail(rectificative.id);
+      } catch (error) {
+        console.error('No se ha podido generar/enviar la factura rectificativa:', orderNumber, error);
+      }
+    }
 
     await sendOrderRefundEmail(order, amountToRefund, isFullRefund);
 

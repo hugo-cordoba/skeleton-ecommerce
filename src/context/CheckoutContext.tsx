@@ -7,6 +7,9 @@ const CHECKOUT_STORAGE_KEY = 'ecommerce-landing:checkout';
 
 export interface ContactInfo {
   email: string;
+  requestsInvoice?: boolean;
+  buyerNif?: string;
+  buyerLegalName?: string;
 }
 
 interface CheckoutState {

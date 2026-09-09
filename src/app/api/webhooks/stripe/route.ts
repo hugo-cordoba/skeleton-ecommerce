@@ -8,6 +8,8 @@ import { shippingMethods } from '@/data/shipping.config';
 import { generateOrderNumber } from '@/lib/order-number';
 import { sendEmail, orderConfirmationEmailHtml } from '@/lib/email';
 import { toOrderDTO, type OrderRow } from '@/lib/order-mapper';
+import { generateInvoiceForOrder } from '@/lib/invoicing';
+import { renderInvoicePdf } from '@/lib/invoice-pdf';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -83,6 +85,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           subtotal,
           total: subtotal + shippingMethod.price,
           status: 'PROCESSING',
+          buyerRequestsInvoice: Boolean(meta.buyerNif),
+          buyerNif: meta.buyerNif || null,
+          buyerLegalName: meta.buyerLegalName || null,
           items: {
             create: cartItems.map((item) => ({
               productId: item.productId,
@@ -91,11 +96,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
               unitPrice: parsePriceToNumber(item.product.price),
               quantity: item.quantity,
               selectedVariants: item.selectedVariants ?? undefined,
+              taxRate: item.product.taxRate,
             })),
           },
         },
-        // Necesitamos los items de vuelta para poder montar el email de
-        // confirmación justo después, sin hacer una segunda consulta.
         include: { items: true },
       });
 
@@ -113,6 +117,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       return order;
     });
 
+    let invoice: Awaited<ReturnType<typeof generateInvoiceForOrder>> | null = null;
+    try {
+      invoice = await generateInvoiceForOrder({
+        orderId: createdOrder.id,
+        buyerNif: (session.metadata?.buyerNif as string) || undefined,
+        buyerLegalName: (session.metadata?.buyerLegalName as string) || undefined,
+      });
+    } catch (error) {
+      console.error('No se ha podido generar la factura del pedido:', createdOrder.orderNumber, error);
+    }
     // A partir de aquí el pedido ya está persistido y el pago confirmado.
     // El email es "best effort": si falla el envío NO revertimos el pedido
     // ni disparamos el reembolso automático del catch de abajo -- ese
@@ -142,13 +156,27 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
  * registra en logs pero no debe afectar al pedido, que ya está creado y
  * pagado en este punto.
  */
-async function sendOrderConfirmationEmail(row: OrderRow): Promise<void> {
+async function sendOrderConfirmationEmail(
+  row: OrderRow,
+  invoice: Awaited<ReturnType<typeof generateInvoiceForOrder>> | null
+): Promise<void> {
   try {
     const order = toOrderDTO(row);
+    let attachments: { filename: string; content: string }[] | undefined;
+
+    if (invoice) {
+      const fullInvoice = await prisma.invoice.findUnique({ where: { id: invoice.id }, include: { items: true } });
+      if (fullInvoice) {
+        const pdfBuffer = await renderInvoicePdf(fullInvoice);
+        attachments = [{ filename: `${fullInvoice.invoiceNumber}.pdf`, content: pdfBuffer.toString('base64') }];
+      }
+    }
+
     const result = await sendEmail({
       to: order.email,
       subject: `Confirmación de tu pedido ${order.orderNumber}`,
       html: orderConfirmationEmailHtml(order),
+      attachments,
     });
 
     if (!result.ok) {

@@ -125,6 +125,14 @@
   font-size: 1rem;
 }
 
+.invoiceLink {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: 1fr;

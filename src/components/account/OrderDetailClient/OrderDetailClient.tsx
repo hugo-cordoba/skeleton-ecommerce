@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useOrders } from '@/context/OrdersContext';
 import { formatPrice } from '@/lib/currency';
+import { getInvoiceForOrder } from '@/lib/actions/invoice.actions';
+
 import styles from './OrderDetailClient.module.css';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -21,6 +23,12 @@ export default function OrderDetailClient({ orderNumber }: { orderNumber: string
   const router = useRouter();
   const { getOrder, hydrated } = useOrders();
   const order = hydrated ? getOrder(orderNumber) : undefined;
+  const [invoiceNumber, setInvoiceNumber] = useState<string | null>(null);
+
+  useEffect(() => {
+      if (!order) return;
+      getInvoiceForOrder(order.orderNumber).then((invoice) => setInvoiceNumber(invoice?.invoiceNumber ?? null));
+    }, [order]);
 
   // Id invalido o pedido de otro usuario: no hay nada que mostrar.
   useEffect(() => {
@@ -41,6 +49,11 @@ export default function OrderDetailClient({ orderNumber }: { orderNumber: string
         <div>
           <h1 className={styles.title}>Pedido {order.orderNumber}</h1>
           <p className={styles.subtitle}>{formatDate(order.createdAt)}</p>
+          {invoiceNumber && (
+            <a href={`/api/invoices/${invoiceNumber}`} target="_blank" rel="noreferrer" className={styles.invoiceLink}>
+              Descargar factura
+            </a>
+          )}
         </div>
         <span className={styles.status} data-status={order.status}>
           {STATUS_LABELS[order.status] ?? order.status}

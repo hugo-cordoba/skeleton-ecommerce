@@ -35,6 +35,8 @@ export default function CheckoutPaymentPage() {
         email: contactInfo.email,
         shippingAddress,
         shippingMethodId: shippingMethod.id,
+        buyerNif: contactInfo.buyerNif,
+        buyerLegalName: contactInfo.buyerLegalName,
       });
       window.location.href = url;
     } catch (error) {

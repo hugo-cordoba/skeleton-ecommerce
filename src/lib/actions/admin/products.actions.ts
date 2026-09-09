@@ -7,6 +7,7 @@ import { ensureUniqueSlug, slugify } from '@/lib/slugify';
 import { parsePriceToNumber, toPriceString } from '@/lib/currency';
 import { runAdminAction, type AdminActionResult } from './admin-utils';
 import type { ProductStatus } from '@/types/product.types';
+import { TAX_RATE_OPTIONS } from '@/lib/tax';
 
 /* ---------- Listado ---------- */
 
@@ -158,6 +159,7 @@ export interface AdminProductDetail {
   brandSlug: string;
   badge: string;
   variantGroups: AdminVariantGroupInput[];
+  taxRate: number;
 }
 
 export async function getAdminProductById(id: string): Promise<AdminProductDetail | null> {
@@ -184,6 +186,7 @@ export async function getAdminProductById(id: string): Promise<AdminProductDetai
     categorySlug: row.categorySlug,
     brandSlug: row.brandSlug ?? '',
     badge: row.badge ?? '',
+    taxRate: row.taxRate,
     variantGroups: row.variantGroups.map((group) => ({
       label: group.label,
       options: group.options.map((option) => ({ label: option.label, available: option.available })),
@@ -208,6 +211,7 @@ export interface ProductFormInput {
   brandSlug?: string;
   badge?: string;
   variantGroups: AdminVariantGroupInput[];
+  taxRate: number;
 }
 
 function validateProductInput(input: ProductFormInput): void {
@@ -222,6 +226,9 @@ function validateProductInput(input: ProductFormInput): void {
     throw new Error('El precio tachado debe ser mayor que el precio actual.');
   }
   if (input.stock < 0) throw new Error('El stock no puede ser negativo.');
+    if (!TAX_RATE_OPTIONS.some((option) => option.value === input.taxRate)) {
+    throw new Error('Tipo de IVA no válido.');
+  }
   for (const group of input.variantGroups) {
     if (!group.label.trim()) throw new Error('Cada grupo de variante necesita una etiqueta (ej. "Talla").');
     if (group.options.length === 0) throw new Error(`El grupo "${group.label}" necesita al menos una opción.`);
@@ -283,6 +290,7 @@ export async function createProductAction(input: ProductFormInput): Promise<Admi
         badge: input.badge?.trim() || null,
         relatedIds: [],
         variantGroups: variantGroupsCreateData(input.variantGroups),
+        taxRate: input.taxRate,
       },
     });
 
@@ -338,6 +346,7 @@ export async function updateProductAction(
           brandSlug: input.brandSlug || null,
           badge: input.badge?.trim() || null,
           variantGroups: variantGroupsCreateData(input.variantGroups),
+          taxRate: input.taxRate,
         },
       });
     });

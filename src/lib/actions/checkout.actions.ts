@@ -13,6 +13,8 @@ interface CreateCheckoutSessionInput {
   email: string;
   shippingAddress: ShippingAddress;
   shippingMethodId: string;
+  buyerNif?: string;
+  buyerLegalName?: string;
 }
 
 /**
@@ -96,6 +98,8 @@ export async function createCheckoutSessionAction(
       postalCode: input.shippingAddress.postalCode,
       country: input.shippingAddress.country,
       phone: input.shippingAddress.phone ?? '',
+      buyerNif: input.buyerNif ?? '',
+      buyerLegalName: input.buyerLegalName ?? '',
     },
   });
 

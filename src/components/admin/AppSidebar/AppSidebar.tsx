@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FolderTree, LayoutDashboard, Package, ShoppingBag, Store, Tag, Users } from 'lucide-react';
+import { FolderTree, LayoutDashboard, Package, Receipt, ShoppingBag, Store, Tag, Users } from 'lucide-react';
 import { siteConfig } from '@/config/site.config';
 import NavUser from '@/components/admin/NavUser/NavUser';
 import {
@@ -27,6 +27,7 @@ const navMain = [
   { title: 'Marcas', href: '/admin/brands', icon: Tag },
   { title: 'Clientes', href: '/admin/customers', icon: Users },
   { title: 'Pedidos', href: '/admin/orders', icon: ShoppingBag },
+  { title: 'Facturación', href: '/admin/settings/fiscal', icon: Receipt },
 ];
 
 export default function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {

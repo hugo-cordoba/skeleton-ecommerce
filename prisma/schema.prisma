@@ -92,6 +92,8 @@ model Product {
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
+  taxRate            Float         @default(21)
+
   @@index([status])
 }
 
@@ -200,6 +202,11 @@ model Order {
 
   createdAt        DateTime    @default(now())
 
+  buyerRequestsInvoice Boolean     @default(false)
+  buyerNif             String?
+  buyerLegalName       String?
+  invoices             Invoice[]
+
   @@index([userId])
   @@index([guestId])
 }
@@ -215,10 +222,120 @@ model OrderItem {
   unitPrice        Float
   quantity         Int
   selectedVariants Json?
+  taxRate          Float   @default(21)
 }
 
 model NewsletterSubscriber {
   id        String   @id @default(cuid())
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+/**
+ * Datos fiscales del vendedor (emisor). Fila única, editable desde
+ * /admin/settings/fiscal. Cada factura guarda una "foto" de estos datos
+ * en el momento de emitirse (Invoice.issuerName/issuerNif/issuerAddress),
+ * así que cambiarlos aquí no reescribe facturas ya emitidas.
+ */
+model FiscalConfig {
+  id                String   @id @default(cuid())
+  legalName         String
+  tradeName         String?
+  nif               String
+  addressLine1      String
+  addressLine2      String?
+  postalCode        String
+  city              String
+  province          String
+  country           String   @default("España")
+  email             String?
+  phone             String?
+  invoiceFooterNote String?
+  updatedAt         DateTime @updatedAt
+}
+
+/**
+ * Contador correlativo por serie y año natural. El incremento se hace
+ * dentro de una transacción (ver lib/invoicing.ts) para que dos compras
+ * simultáneas nunca puedan recibir el mismo número.
+ */
+model InvoiceSequence {
+  id         String @id @default(cuid())
+  series     String // "FS" simplificada, "FC" completa, "FR" rectificativa
+  year       Int
+  lastNumber Int    @default(0)
+
+  @@unique([series, year])
+}
+
+enum InvoiceType {
+  SIMPLIFIED
+  FULL
+  RECTIFICATIVE
+}
+
+enum InvoiceStatus {
+  ISSUED
+  RECTIFIED // sustituida por una rectificativa; sigue existiendo, nunca se borra
+}
+
+/**
+ * Factura emitida. INMUTABLE una vez creada: no hay updateInvoiceAction.
+ * Una corrección se hace siempre con una factura rectificativa nueva
+ * (generateRectificativeInvoice), nunca editando o borrando esta fila.
+ */
+model Invoice {
+  id             String        @id @default(cuid())
+  invoiceNumber  String        @unique // ej. "FS-2026-000123"
+  series         String
+  year           Int
+  sequenceNumber Int
+  type           InvoiceType   @default(SIMPLIFIED)
+  status         InvoiceStatus @default(ISSUED)
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  issuerName    String
+  issuerNif     String
+  issuerAddress String
+
+  buyerName    String?
+  buyerNif     String?
+  buyerAddress String?
+
+  subtotal     Float // base imponible total
+  taxBreakdown Json // [{ rate: 21, base: 100, quota: 21 }, ...]
+  totalTax     Float
+  total        Float
+  currency     String @default("EUR")
+
+  rectifiesInvoiceId String?  @unique
+  rectifiesInvoice   Invoice? @relation("InvoiceRectification", fields: [rectifiesInvoiceId], references: [id])
+  rectifiedBy        Invoice? @relation("InvoiceRectification")
+
+  issuedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  items InvoiceItem[]
+
+  @@index([orderId])
+}
+
+model InvoiceItem {
+  id        String  @id @default(cuid())
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  // Sin relación/FK a Product a propósito: la factura tiene que seguir
+  // siendo legible aunque el producto se archive o desaparezca del catálogo.
+  productId String?
+
+  name         String
+  quantity     Int
+  unitPriceNet Float
+  taxRate      Float
+  lineNet      Float
+  lineTax      Float
+  lineTotal    Float
 }

@@ -18,15 +18,16 @@ interface SendEmailInput {
   subject: string;
   html: string;
   replyTo?: string;
+  attachments?: { filename: string; content: string }[];
 }
 
-export async function sendEmail({ to, subject, html, replyTo }: SendEmailInput): Promise<{ ok: boolean; error?: string }> {
+export async function sendEmail({ to, subject, html, replyTo, attachments }: SendEmailInput): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM ?? 'no-reply@example.com';
 
   if (!apiKey) {
     console.warn('[email] RESEND_API_KEY no configurada; simulando envío.');
-    console.info(`[email] Para: ${to} | Asunto: ${subject}\n${html}`);
+    console.info(`[email] Para: ${to} | Asunto: ${subject}${attachments ? ` | Adjuntos: ${attachments.map((a) => a.filename).join(', ')}` : ''}`);
     return { ok: true };
   }
 
@@ -34,7 +35,14 @@ export async function sendEmail({ to, subject, html, replyTo }: SendEmailInput):
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
+      body: JSON.stringify({
+        from,
+        to,
+        subject,
+        html,
+        ...(replyTo ? { reply_to: replyTo } : {}),
+        ...(attachments ? { attachments } : {}),
+      }),
     });
 
     if (!response.ok) {
