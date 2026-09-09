@@ -10,6 +10,7 @@ import { sendEmail, orderConfirmationEmailHtml } from '@/lib/email';
 import { toOrderDTO, type OrderRow } from '@/lib/order-mapper';
 import { generateInvoiceForOrder } from '@/lib/invoicing';
 import { renderInvoicePdf } from '@/lib/invoice-pdf';
+import { applyRefundToOrder } from '@/lib/refund-processing';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -26,8 +27,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Firma inválida' }, { status: 400 });
   }
 
-  if (event.type === 'checkout.session.completed') {
-    await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+  switch (event.type) {
+    case 'checkout.session.completed':
+      await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+      break;
+    case 'charge.refunded':
+      await handleChargeRefunded(event.data.object as Stripe.Charge);
+      break;
   }
 
   return NextResponse.json({ received: true });
@@ -66,10 +72,14 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         0
       );
 
+      const paymentIntentId =
+        typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null;
+
       const order = await tx.order.create({
         data: {
           orderNumber: generateOrderNumber(),
           stripeSessionId: session.id,
+          stripePaymentIntentId: paymentIntentId,
           ...(meta.userId ? { userId: meta.userId } : { guestId: meta.guestId }),
           email: meta.email,
           shippingFullName: meta.fullName,
@@ -103,8 +113,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         include: { items: true },
       });
 
-      // Descuento de stock real (punto 2), en la misma transacción que
-      // crea el pedido: nunca queda un pedido sin su stock reflejado.
       for (const item of cartItems) {
         await tx.product.update({
           where: { id: item.productId },
@@ -127,17 +135,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     } catch (error) {
       console.error('No se ha podido generar la factura del pedido:', createdOrder.orderNumber, error);
     }
-    // A partir de aquí el pedido ya está persistido y el pago confirmado.
-    // El email es "best effort": si falla el envío NO revertimos el pedido
-    // ni disparamos el reembolso automático del catch de abajo -- ese
-    // reembolso es solo para cuando el pedido en sí no se pudo crear.
     await sendOrderConfirmationEmail(createdOrder, invoice);
   } catch (error) {
     console.error('No se pudo completar el pedido tras el pago:', error);
 
-    // Ya se ha cobrado pero no se ha podido crear el pedido (normalmente
-    // por falta de stock de última hora) -> reembolso automático en vez
-    // de dejar un cobro huérfano sin pedido asociado.
     if (typeof session.payment_intent === 'string') {
       try {
         await stripe.refunds.create({ payment_intent: session.payment_intent });
@@ -149,13 +150,43 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 /**
- * Envía el email de confirmación tras un pago con éxito. Reutiliza el
- * mismo helper (sendEmail + orderConfirmationEmailHtml + toOrderDTO) que
- * usa el botón "Reenviar email" de /admin/orders/[orderNumber], así el
- * formato es idéntico en ambos casos. Nunca lanza: un fallo de envío se
- * registra en logs pero no debe afectar al pedido, que ya está creado y
- * pagado en este punto.
+ * Sincroniza un reembolso HECHO EN STRIPE (típicamente desde el dashboard,
+ * fuera de /admin/orders) con el pedido correspondiente.
+ *
+ * `charge.amount_refunded` es el ACUMULADO reembolsado en ese cobro (no el
+ * delta de este evento): se le pasa tal cual a applyRefundToOrder, que
+ * calcula el delta y es idempotente frente a reintentos del webhook.
+ *
+ * IMPORTANTE: para que Stripe llegue a mandar este evento, el endpoint
+ * tiene que tener suscrito "charge.refunded" (Dashboard > Developers >
+ * Webhooks > tu endpoint > Select events), o en local:
+ *   stripe listen --events checkout.session.completed,charge.refunded
  */
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  const paymentIntentId =
+    typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id;
+
+  if (!paymentIntentId) {
+    console.error('Evento charge.refunded sin payment_intent asociado:', charge.id);
+    return;
+  }
+
+  const order = await prisma.order.findUnique({ where: { stripePaymentIntentId: paymentIntentId } });
+  if (!order) {
+    console.warn('No se ha encontrado ningún pedido para el payment_intent reembolsado:', paymentIntentId);
+    return;
+  }
+
+  try {
+    await applyRefundToOrder({
+      orderId: order.id,
+      targetRefundedAmount: charge.amount_refunded / 100,
+    });
+  } catch (error) {
+    console.error('No se ha podido sincronizar el reembolso de Stripe con el pedido:', order.orderNumber, error);
+  }
+}
+
 async function sendOrderConfirmationEmail(
   row: OrderRow,
   invoice: Awaited<ReturnType<typeof generateInvoiceForOrder>> | null

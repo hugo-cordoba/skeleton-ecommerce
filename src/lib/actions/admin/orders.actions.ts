@@ -4,12 +4,13 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 import { requireAdmin } from '@/lib/admin-auth';
-import { sendEmail, orderConfirmationEmailHtml, orderStatusUpdateEmailHtml, orderRefundEmailHtml } from '@/lib/email';
+import { sendEmail, orderConfirmationEmailHtml, orderStatusUpdateEmailHtml } from '@/lib/email';
 import { runAdminAction, type AdminActionResult } from './admin-utils';
 import { statusToClient, statusToPrisma, toOrderDTO } from '@/lib/order-mapper';
 import type { Order, OrderStatus, ShippingAddress } from '@/types/order.types';
-import { generateRectificativeInvoice, sendInvoiceEmail } from '@/lib/invoicing';
 import { renderInvoicePdf } from '@/lib/invoice-pdf';
+import { applyRefundToOrder } from '@/lib/refund-processing';
+import { round2 } from '@/lib/tax';
 
 export interface AdminOrderSummary {
   orderNumber: string;
@@ -52,25 +53,6 @@ async function sendOrderStatusEmail(row: Parameters<typeof toOrderDTO>[0], statu
     }
   } catch (error) {
     console.error('Error inesperado enviando el email de estado del pedido:', error);
-  }
-}
-
-async function sendOrderRefundEmail(
-  row: Parameters<typeof toOrderDTO>[0],
-  refundedAmount: number,
-  isFullRefund: boolean
-): Promise<void> {
-  try {
-    const order = toOrderDTO(row);
-    const subject = isFullRefund
-      ? `Tu pedido ${order.orderNumber} ha sido cancelado y reembolsado`
-      : `Reembolso parcial de tu pedido ${order.orderNumber}`;
-    const result = await sendEmail({ to: order.email, subject, html: orderRefundEmailHtml(order, refundedAmount, isFullRefund) });
-    if (!result.ok) {
-      console.error('No se ha podido enviar el email de reembolso:', order.orderNumber, result.error);
-    }
-  } catch (error) {
-    console.error('Error inesperado enviando el email de reembolso:', error);
   }
 }
 
@@ -168,7 +150,6 @@ export async function updateOrderStatusAction(
       include: { items: true },
     });
 
-    // "processing" ya lo cubre el email de confirmación; solo avisamos en los cambios que le importan al cliente.
     if (status === 'shipped' || status === 'delivered') {
       await sendOrderStatusEmail(updated, status);
     }
@@ -189,12 +170,18 @@ export interface RefundOrderResult {
   refundedAmount: number;
 }
 
+/**
+ * Reembolso iniciado desde /admin: crea el refund en Stripe y luego aplica
+ * sus efectos (estado, stock, factura rectificativa, email) con
+ * applyRefundToOrder -- el mismo helper que usa el webhook charge.refunded
+ * para sincronizar reembolsos hechos directamente en el dashboard de Stripe.
+ */
 export async function refundOrderAction(
   orderNumber: string,
   input: RefundOrderInput = {}
 ): Promise<AdminActionResult<RefundOrderResult>> {
   return runAdminAction(async () => {
-    const order = await prisma.order.findUnique({ where: { orderNumber }, include: { items: true } });
+    const order = await prisma.order.findUnique({ where: { orderNumber } });
     if (!order) throw new Error('El pedido no existe.');
     if (order.status === 'CANCELLED') throw new Error('Este pedido ya está cancelado.');
 
@@ -222,39 +209,12 @@ export async function refundOrderAction(
     }
     // Pedidos legacy sin stripeSessionId: el reembolso se registra solo internamente.
 
-    const newRefundedAmount = alreadyRefunded + amountToRefund;
-    const nextStatus = isFullRefund ? 'CANCELLED' : order.status;
-
-    await prisma.$transaction(async (tx) => {
-      if (isFullRefund) {
-        for (const item of order.items) {
-          await tx.product.update({ where: { id: item.productId }, data: { stock: { increment: item.quantity } } });
-        }
-      }
-      await tx.order.update({
-        where: { orderNumber },
-        data: {
-          refundedAmount: newRefundedAmount,
-          refundedAt: new Date(),
-          status: nextStatus,
-          cancelledAt: isFullRefund ? new Date() : order.cancelledAt,
-        },
-      });
+    const result = await applyRefundToOrder({
+      orderId: order.id,
+      targetRefundedAmount: round2(alreadyRefunded + amountToRefund),
     });
 
-    const originalInvoice = await prisma.invoice.findFirst({ where: { orderId: order.id, status: 'ISSUED' } });
-    if (originalInvoice) {
-      try {
-        const rectificative = await generateRectificativeInvoice(originalInvoice.id, amountToRefund);
-        await sendInvoiceEmail(rectificative.id);
-      } catch (error) {
-        console.error('No se ha podido generar/enviar la factura rectificativa:', orderNumber, error);
-      }
-    }
-
-    await sendOrderRefundEmail(order, amountToRefund, isFullRefund);
-
-    return { status: statusToClient(nextStatus), refundedAmount: newRefundedAmount };
+    return { status: result.status, refundedAmount: result.refundedAmount };
   });
 }
 
@@ -329,7 +289,6 @@ export async function resendOrderConfirmationEmailAction(orderNumber: string): P
 
     const order = toOrderDTO(row);
 
-    // Buscar factura asociada al pedido para adjuntarla si existe
     let attachments: { filename: string; content: Buffer | string }[] | undefined;
     const invoice = await prisma.invoice.findFirst({
       where: { orderId: row.id, status: 'ISSUED' },
