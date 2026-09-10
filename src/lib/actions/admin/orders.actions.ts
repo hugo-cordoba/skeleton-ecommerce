@@ -11,6 +11,7 @@ import type { Order, OrderStatus, ShippingAddress } from '@/types/order.types';
 import { renderInvoicePdf } from '@/lib/invoice-pdf';
 import { applyRefundToOrder } from '@/lib/refund-processing';
 import { round2 } from '@/lib/tax';
+import { stripeDashboardUrl } from '@/lib/stripe';
 
 export interface AdminOrderSummary {
   orderNumber: string;
@@ -18,6 +19,7 @@ export interface AdminOrderSummary {
   createdAt: string;
   status: OrderStatus;
   total: number;
+  refundedAmount: number | null;
   itemCount: number;
   isGuest: boolean;
 }
@@ -69,6 +71,8 @@ export async function getAdminOrders(params: AdminOrdersQuery = {}): Promise<Adm
           OR: [
             { orderNumber: { contains: params.query, mode: 'insensitive' } },
             { email: { contains: params.query, mode: 'insensitive' } },
+            { stripePaymentIntentId: { contains: params.query, mode: 'insensitive' } }, // NUEVO
+            { stripeSessionId: { contains: params.query, mode: 'insensitive' } }, // NUEVO
           ],
         }
       : {}),
@@ -86,6 +90,7 @@ export async function getAdminOrders(params: AdminOrdersQuery = {}): Promise<Adm
         createdAt: true,
         status: true,
         total: true,
+        refundedAmount: true,
         userId: true,
         items: { select: { quantity: true } },
       },
@@ -100,6 +105,7 @@ export async function getAdminOrders(params: AdminOrdersQuery = {}): Promise<Adm
       createdAt: row.createdAt.toISOString(),
       status: statusToClient(row.status),
       total: row.total,
+      refundedAmount: row.refundedAmount,
       itemCount: row.items.reduce((sum, item) => sum + item.quantity, 0),
       isGuest: !row.userId,
     })),
@@ -114,6 +120,7 @@ export interface AdminOrderDetail extends Order {
   internalNotes: string | null;
   refundedAmount: number | null;
   cancelledAt: string | null;
+  stripePaymentUrl: string | null; // NUEVO
 }
 
 export async function getAdminOrderDetail(orderNumber: string): Promise<AdminOrderDetail | null> {
@@ -128,9 +135,11 @@ export async function getAdminOrderDetail(orderNumber: string): Promise<AdminOrd
     internalNotes: row.internalNotes,
     refundedAmount: row.refundedAmount,
     cancelledAt: row.cancelledAt ? row.cancelledAt.toISOString() : null,
+    stripePaymentUrl: row.stripePaymentIntentId
+      ? stripeDashboardUrl(`payments/${row.stripePaymentIntentId}`)
+      : null,
   };
 }
-
 export async function updateOrderStatusAction(
   orderNumber: string,
   status: OrderStatus

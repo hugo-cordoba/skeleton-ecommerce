@@ -81,6 +81,7 @@ export default function OrdersPageClient({ result, status, query }: OrdersPageCl
             <option value="processing">En preparación</option>
             <option value="shipped">Enviado</option>
             <option value="delivered">Entregado</option>
+            <option value="cancelled">Reembolsado</option>
           </select>
         </div>
       </div>
@@ -121,6 +122,11 @@ export default function OrdersPageClient({ result, status, query }: OrdersPageCl
                       status={order.status}
                       onChange={(next) => handleStatusChange(order.orderNumber, next)}
                     />
+                    {order.refundedAmount != null && order.refundedAmount > 0 && order.status !== 'cancelled' && (
+                      <span className={styles.guestBadge} title={`Reembolsado: ${formatPrice(order.refundedAmount)}`}>
+                        Reembolso parcial
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}

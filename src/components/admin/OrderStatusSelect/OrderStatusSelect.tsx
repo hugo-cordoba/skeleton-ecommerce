@@ -15,7 +15,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   processing: 'En preparación',
   shipped: 'Enviado',
   delivered: 'Entregado',
-  cancelled: 'Cancelado',
+  cancelled: 'Reembolsado',
 };
 
 interface OrderStatusSelectProps {

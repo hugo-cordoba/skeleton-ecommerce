@@ -156,6 +156,14 @@ export default function AdminOrderDetailClient({ order: initialOrder }: { order:
             {order.isGuest && <span className={styles.guestBadge}>Invitado</span>}
             {' · '}
             {formatDate(order.createdAt)}
+            {order.stripePaymentUrl && (
+              <>
+                {' · '}
+                <a href={order.stripePaymentUrl} target="_blank" rel="noreferrer">
+                  Ver en Stripe ↗
+                </a>
+              </>
+            )}
           </p>
         </div>
         <OrderStatusSelect orderNumber={order.orderNumber} status={status} onChange={setStatus} />

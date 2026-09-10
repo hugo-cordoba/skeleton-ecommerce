@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: 'Pedidos',
 };
 
-const VALID_STATUSES: OrderStatus[] = ['processing', 'shipped', 'delivered'];
+const VALID_STATUSES: OrderStatus[] = ['processing', 'shipped', 'delivered', 'cancelled'];
 
 interface AdminOrdersPageProps {
   searchParams: { status?: string; q?: string; page?: string };
