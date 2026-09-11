@@ -1,7 +1,7 @@
 .section {
   background-color: var(--color-primary);
   color: var(--color-background);
-  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
+  padding: clamp(1.75rem, 4vw, 3rem) clamp(1.5rem, 5vw, 4rem);
 }
 
 .text {

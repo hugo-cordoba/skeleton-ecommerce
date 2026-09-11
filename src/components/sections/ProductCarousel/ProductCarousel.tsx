@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import ProductCard from '@/components/ui/ProductCard/ProductCard';
 import type { ProductCarouselProps } from '@/types/section.types';
+import { ArrowRight } from 'lucide-react';
 import styles from './ProductCarousel.module.css';
 
 export default function ProductCarousel({
@@ -19,6 +20,7 @@ export default function ProductCarousel({
         {viewAllLabel && viewAllHref && (
           <Link href={viewAllHref} className={styles.viewAll}>
             {viewAllLabel}
+            <ArrowRight size={14} strokeWidth={2} className={styles.viewAllArrow} aria-hidden="true" />
           </Link>
         )}
       </div>

@@ -46,7 +46,7 @@ export const landingSections: SectionConfig[] = [
     type: 'productCarousel',
     props: {
       title: 'PRODUCTOS DESTACADOS',
-      viewAllLabel: 'Ver todas',
+      viewAllLabel: 'Ver todos',
       viewAllHref: '/products',
     },
   },
@@ -65,7 +65,7 @@ export const landingSections: SectionConfig[] = [
     type: 'productCarousel',
     props: {
       title: 'PRODUCTOS POR MENOS DE 50€',
-      viewAllLabel: 'Ver todas',
+      viewAllLabel: 'Ver todos',
       viewAllHref: '/products?maxPrice=50',
     },
   },

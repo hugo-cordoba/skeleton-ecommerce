@@ -7,7 +7,7 @@ export default async function HomePage() {
   // usan productos reales (no el mock de landing.config.ts) para que
   // favoritos y "anadir a la cesta" funcionen igual que en /products.
   const [featuredProducts, budgetProducts] = await Promise.all([
-    getFeaturedProducts(5),
+    getFeaturedProducts(4),
     getProductsUnderPrice(50, 8),
   ]);
 

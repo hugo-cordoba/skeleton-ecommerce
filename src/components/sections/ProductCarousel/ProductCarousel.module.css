@@ -1,5 +1,5 @@
 .section {
-  padding: var(--carousel-padding-y, clamp(1.5rem, 4vw, 3rem)) var(--carousel-padding-x, clamp(1.5rem, 5vw, 4rem));
+  padding: var(--carousel-padding-y, clamp(1rem, 2.5vw, 1.75rem)) var(--carousel-padding-x, clamp(1.5rem, 5vw, 4rem));
   background-color: var(--carousel-bg, var(--color-background));
 }
 
@@ -13,22 +13,37 @@
 .title {
   font-family: var(--font-heading);
   font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 500;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.85rem;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .viewAll:hover {
-  color: var(--color-text);
+  color: var(--color-primary-light);
+}
+
+.viewAllArrow {
+  transition: transform 0.2s ease;
+}
+
+.viewAll:hover .viewAllArrow {
+  transform: translateX(3px);
 }
 
 .itemsRow {
   display: grid;
-  grid-template-columns: repeat(var(--carousel-columns, 5), 1fr);
+  grid-template-columns: repeat(var(--carousel-columns, 4), 1fr);
   gap: 0.75rem;
   margin-bottom: var(--carousel-items-gap, 2.5rem);
   /* ProductCard usa esta variable para ocupar el 100% de su columna,
