@@ -3,9 +3,17 @@ import ProductCard from '@/components/ui/ProductCard/ProductCard';
 import type { ProductCarouselProps } from '@/types/section.types';
 import styles from './ProductCarousel.module.css';
 
-export default function ProductCarousel({ title, viewAllLabel, viewAllHref, items = [], promos }: ProductCarouselProps) {
+export default function ProductCarousel({
+  title,
+  viewAllLabel,
+  viewAllHref,
+  items = [],
+  promos,
+  className,
+  style,
+}: ProductCarouselProps) {
   return (
-    <section className={styles.section}>
+    <section className={className ? `${styles.section} ${className}` : styles.section} style={style}>
       <div className={styles.header}>
         {title && <h2 className={styles.title}>{title}</h2>}
         {viewAllLabel && viewAllHref && (

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getProductBySlug, getRelatedProducts } from '@/data/products.config';
 import ProductCarousel from '@/components/sections/ProductCarousel/ProductCarousel';
 import ProductDetailClient from '@/components/product/ProductDetailClient/ProductDetailClient';
+import styles from './ProductPage.module.css';
 
 interface ProductPageProps {
   params: { slug: string };
@@ -27,7 +28,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const relatedProducts = await getRelatedProducts(product);
 
   return (
-    <>
+    <div className={styles.page}>
       <ProductDetailClient product={product} />
 
       {relatedProducts.length > 0 && (
@@ -35,8 +36,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
           title="También te puede interesar"
           items={relatedProducts}
           promos={[]}
+          className={styles.related}
         />
       )}
-    </>
+    </div>
   );
 }

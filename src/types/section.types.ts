@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { Product } from './product.types';
 
 export interface NavLink {
@@ -44,6 +45,8 @@ export interface ProductCarouselProps {
   viewAllHref?: string;
   items?: Product[];
   promos?: PromoBanner[];
+  className?: string;
+  style?: CSSProperties;
 }
 
 export interface FeatureBannerProps {
