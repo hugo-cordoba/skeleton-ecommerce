@@ -97,7 +97,7 @@ export default function AuthSidebar({ isOpen, onClose }: AuthSidebarProps) {
         <div className={styles.header}>
           <span className={styles.eyebrow}>{eyebrows[mode]}</span>
           <button type="button" className={styles.close} onClick={onClose} aria-label="Cerrar">
-            <span aria-hidden="true">&times;</span>
+            [x]
           </button>
         </div>
 

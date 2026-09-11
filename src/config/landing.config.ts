@@ -61,6 +61,15 @@ export const landingSections: SectionConfig[] = [
     },
   },
   {
+    id: 'productos-baratos',
+    type: 'productCarousel',
+    props: {
+      title: 'PRODUCTOS POR MENOS DE 50€',
+      viewAllLabel: 'Ver todas',
+      viewAllHref: '/products?maxPrice=50',
+    },
+  },
+  {
     id: 'nosotros',
     type: 'splitIntro',
     props: {

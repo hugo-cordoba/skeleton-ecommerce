@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import type { ProductDetail } from '@/types/product.types';
+import { parsePriceToNumber } from '@/lib/currency';
 
 function toProductDetail(p: any): ProductDetail {
   return {
@@ -113,4 +114,13 @@ export const productBrands = () => prisma.brand.findMany();
 export async function getAllBrandSlugs(): Promise<string[]> {
   const brands = await prisma.brand.findMany({ select: { slug: true } });
   return brands.map((b) => b.slug);
+}
+
+export async function getProductsUnderPrice(maxPrice: number, limit = 8): Promise<ProductDetail[]> {
+  const rows = await prisma.product.findMany({ where: ACTIVE_ONLY, include });
+  return rows
+    .map(toProductDetail)
+    .filter((product) => parsePriceToNumber(product.price) < maxPrice)
+    .sort((a, b) => parsePriceToNumber(a.price) - parsePriceToNumber(b.price))
+    .slice(0, limit);
 }

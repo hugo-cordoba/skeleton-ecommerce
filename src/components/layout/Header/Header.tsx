@@ -57,10 +57,28 @@ export default function Header({
 
   // Un solo efecto controla el scroll del body para los dos paneles
   // (menu y auth), asi evitamos que se pisen si alguna vez coinciden.
+  // "position: fixed" en vez de "overflow: hidden": overflow hidden no
+  // bloquea el scroll de forma fiable en todos los navegadores (sobre
+  // todo iOS Safari), y ese scroll de fondo era lo que hacia que el
+  // header (sticky) pareciera moverse al abrir cualquiera de los dos
+  // sidebars. Fijando el body en su posicion actual no hay nada que
+  // desplazar.
   useEffect(() => {
-    document.body.style.overflow = menuOpen || authOpen ? 'hidden' : '';
+    if (!menuOpen && !authOpen) return;
+
+    const scrollY = window.scrollY;
+    const { style } = document.body;
+    style.position = 'fixed';
+    style.top = `-${scrollY}px`;
+    style.left = '0';
+    style.right = '0';
+
     return () => {
-      document.body.style.overflow = '';
+      style.position = '';
+      style.top = '';
+      style.left = '';
+      style.right = '';
+      window.scrollTo(0, scrollY);
     };
   }, [menuOpen, authOpen]);
 
@@ -173,30 +191,6 @@ export default function Header({
             ))}
           </ul>
         </nav>
-
-        <div className={styles.sidebarFooter}>
-          {authHydrated && user ? (
-            <a href="/account" onClick={() => setMenuOpen(false)}>
-              {user.fullName.split(' ')[0]}
-            </a>
-          ) : (
-            <button type="button" className={styles.sidebarLogout} onClick={openAuth}>
-              {loginLabel}
-            </button>
-          )}
-
-          <a
-            href={wishlistHref}
-            onClick={(e) => {
-              handleWishlistClick(e);
-              if (user || !authHydrated) {
-                setMenuOpen(false);
-              }
-            }}
-          >
-            {wishlistLabel} ({wishlistItemCount})
-          </a>
-        </div>
       </aside>
 
       <AuthSidebar isOpen={authOpen} onClose={() => setAuthOpen(false)} />

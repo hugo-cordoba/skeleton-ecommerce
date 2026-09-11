@@ -19,12 +19,12 @@
   right: 0;
   height: 100vh;
   width: min(440px, 92vw);
-  background-color: var(--color-background);
+  background-color: #fff;
   color: var(--color-text);
   z-index: 70;
   display: flex;
   flex-direction: column;
-  padding: 2rem 2.5rem 2.5rem;
+  padding: 6rem 2.5rem 2.5rem;
   transform: translateX(100%);
   transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
   will-change: transform;
@@ -41,12 +41,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 0.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 0.5rem;
 }
 
 .eyebrow {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -61,7 +60,9 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   line-height: 1;
   color: var(--color-text);
   padding: 0.25rem;
@@ -203,11 +204,11 @@
 
 @media (max-width: 480px) {
   .sidebar {
-    padding: 1.75rem 1.5rem 2rem;
+    padding: 5.5rem 1.5rem 2rem;
   }
 
   .header {
-    margin-bottom: 2.25rem;
+    margin-bottom: 0.5rem;
   }
 
   .title {
