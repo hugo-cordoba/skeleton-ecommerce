@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import AuthSidebar from '@/components/auth/AuthSidebar/AuthSidebar';
 import SearchDropdown from '@/components/product/SearchDropdown/SearchDropdown';
 import styles from './Header.module.css';
+import { usePathname } from 'next/navigation';
 
 interface HeaderProps {
   siteName: string;
@@ -44,6 +45,8 @@ export default function Header({
   const prevWishlistCountRef = useRef(wishlistItemCount);
   const [cartBump, setCartBump] = useState(false);
   const [wishlistBump, setWishlistBump] = useState(false);
+  const pathname = usePathname();
+  const isSearchPage = pathname === '/search';
 
   useEffect(() => {
     if (displayCartCount > prevCartCountRef.current) setCartBump(true);
@@ -98,6 +101,7 @@ export default function Header({
   }
 
   function toggleSearch() {
+    if (isSearchPage) return;
     setMenuOpen(false);
     setAuthOpen(false);
     setSearchOpen((open) => !open);
@@ -139,9 +143,10 @@ export default function Header({
           <button
             type="button"
             onClick={toggleSearch}
-            className={styles.actionButton}
+            className={`${styles.actionButton} ${isSearchPage ? styles.actionButtonActive : ''}`}
             aria-expanded={searchOpen}
             aria-controls="search-dropdown"
+            aria-current={isSearchPage ? 'page' : undefined}
           >
             {searchLabel}
           </button>
@@ -174,7 +179,7 @@ export default function Header({
         </div>
       </div>
 
-      <SearchDropdown isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      {!isSearchPage && <SearchDropdown isOpen={searchOpen} onClose={() => setSearchOpen(false)} />}
 
       <div className={styles.overlay} data-open={menuOpen} onClick={() => setMenuOpen(false)} aria-hidden="true" />
 

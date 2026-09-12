@@ -1,0 +1,24 @@
+.resultsCount {
+  padding: 1.5rem clamp(1.5rem, 5vw, 4rem) 0;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+}
+
+.resultsCount span {
+  font-weight: 400;
+  color: var(--color-text-muted);
+  margin-left: 0.35rem;
+}
+
+.emptyTitle {
+  padding: 1.5rem clamp(1.5rem, 5vw, 4rem) 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}

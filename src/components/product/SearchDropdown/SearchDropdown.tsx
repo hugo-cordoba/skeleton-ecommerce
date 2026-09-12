@@ -11,21 +11,11 @@ interface SearchDropdownProps {
   defaultValue?: string;
 }
 
-/**
- * Mismo panel de búsqueda en dos sitios:
- * - Desplegable del Header (isOpen/onClose): flota bajo la barra, se abre
- *   y cierra, y al buscar redirige a /search?q=... y se cierra solo.
- * - Barra fija de /search (inline): el mismo panel, pero siempre visible
- *   y anclado en el flujo de la página -- sirve de buscador permanente
- *   ahí, delante del listado de resultados.
- */
 export default function SearchDropdown({ isOpen = false, onClose, inline = false, defaultValue = '' }: SearchDropdownProps) {
   const router = useRouter();
   const [query, setQuery] = useState(defaultValue);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Autofocus al abrir, solo aplica al modo desplegable (el inline ya está
-  // siempre visible, no tiene sentido robarle el foco a la página).
   useEffect(() => {
     if (!inline && isOpen) inputRef.current?.focus();
   }, [inline, isOpen]);
@@ -41,6 +31,12 @@ export default function SearchDropdown({ isOpen = false, onClose, inline = false
     }
   }
 
+  function handleClear() {
+    setQuery('');
+    inputRef.current?.focus();
+    router.push('/search');
+  }
+
   const form = (
     <form className={styles.form} onSubmit={handleSubmit}>
       <input
@@ -53,6 +49,12 @@ export default function SearchDropdown({ isOpen = false, onClose, inline = false
         className={styles.input}
         aria-label="Buscar productos"
       />
+
+      {inline && query && (
+        <button type="button" className={styles.clear} onClick={handleClear}>
+          Borrar
+        </button>
+      )}
 
       {!inline && (
         <button type="button" className={styles.close} onClick={onClose} aria-label="Cerrar búsqueda">
@@ -74,10 +76,7 @@ export default function SearchDropdown({ isOpen = false, onClose, inline = false
 
   return (
     <>
-      {/* Igual que el overlay del menú móvil o AuthSidebar: cierra al hacer
-          click fuera, pero sin oscurecer la página (panel pequeño, no modal). */}
       <div className={styles.overlay} onClick={onClose} aria-hidden="true" />
-
       <div id="search-dropdown" className={`${styles.panelBase} ${styles.panel}`} role="search">
         {form}
       </div>

@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
-import CatalogHeader from '@/components/product/CatalogHeader/CatalogHeader';
 import ProductCatalog from '@/components/product/ProductCatalog/ProductCatalog';
 import SearchDropdown from '@/components/product/SearchDropdown/SearchDropdown';
 import { searchProducts } from '@/data/products.config';
@@ -11,6 +10,7 @@ import {
   parseFilterParams,
 } from '@/lib/product-filters';
 import { paginate, parsePageParam } from '@/lib/pagination';
+import styles from './SearchPage.module.css';
 
 export const metadata: Metadata = {
   title: 'Buscar',
@@ -36,26 +36,29 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <>
-      <CatalogHeader
-        title="Buscar"
-        description={hasQuery ? undefined : 'Escribe el nombre de un producto o una categoría.'}
-      />
       <SearchDropdown inline defaultValue={query} key={query} />
 
+      {!hasQuery && <h1 className={styles.emptyTitle}>Buscar</h1>}
+
       {hasQuery && (
-        <Suspense fallback={null}>
-          <ProductCatalog
-            products={pagedResults}
-            resultsCount={filteredResults.length}
-            emptyMessage={`No hemos encontrado nada para "${query}". Prueba con otra palabra.`}
-            filterGroups={filterGroups}
-            priceRange={priceRange}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pathname="/search"
-            searchParams={searchParams}
-          />
-        </Suspense>
+        <>
+          <h1 className={styles.resultsCount}>
+            {query.toUpperCase()} <span>{filteredResults.length}</span>
+          </h1>
+          <Suspense fallback={null}>
+            <ProductCatalog
+              products={pagedResults}
+              resultsCount={filteredResults.length}
+              emptyMessage={`No hemos encontrado nada para "${query}". Prueba con otra palabra.`}
+              filterGroups={filterGroups}
+              priceRange={priceRange}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pathname="/search"
+              searchParams={searchParams}
+            />
+          </Suspense>
+        </>
       )}
     </>
   );
