@@ -7,11 +7,13 @@ import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
 import AuthSidebar from '@/components/auth/AuthSidebar/AuthSidebar';
+import SearchDropdown from '@/components/product/SearchDropdown/SearchDropdown';
 import styles from './Header.module.css';
 
 interface HeaderProps {
   siteName: string;
   navLinks?: NavLink[];
+  /** Ya no se usa como Link directo: "Buscar" abre SearchDropdown. Se mantiene en el tipo por si algún caller la sigue pasando. */
   searchHref?: string;
   searchLabel?: string;
   loginLabel?: string;
@@ -25,7 +27,6 @@ interface HeaderProps {
 export default function Header({
   siteName,
   navLinks = [],
-  searchHref = '#',
   searchLabel = 'Buscar',
   loginLabel = 'Iniciar sesión',
   wishlistHref = '#',
@@ -36,6 +37,7 @@ export default function Header({
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { itemCount } = useCart();
   const { itemCount: wishlistItemCount } = useWishlist();
   const { user, hydrated: authHydrated } = useAuth();
@@ -55,44 +57,27 @@ export default function Header({
     prevWishlistCountRef.current = wishlistItemCount;
   }, [wishlistItemCount]);
 
-  // Un solo efecto controla el scroll del body para los dos paneles
-  // (menu y auth), asi evitamos que se pisen si alguna vez coinciden.
-  // "position: fixed" en vez de "overflow: hidden": overflow hidden no
-  // bloquea el scroll de forma fiable en todos los navegadores (sobre
-  // todo iOS Safari), y ese scroll de fondo era lo que hacia que el
-  // header (sticky) pareciera moverse al abrir cualquiera de los dos
-  // sidebars. Fijando el body en su posicion actual no hay nada que
-  // desplazar.
+  // Un solo efecto controla el scroll del body para los tres paneles
+  // (menu, auth y búsqueda), asi evitamos que se pisen si alguna vez coinciden.
   useEffect(() => {
-    if (!menuOpen && !authOpen) return;
-
-    const scrollY = window.scrollY;
-    const { style } = document.body;
-    style.position = 'fixed';
-    style.top = `-${scrollY}px`;
-    style.left = '0';
-    style.right = '0';
-
+    document.body.style.overflow = menuOpen || authOpen || searchOpen ? 'hidden' : '';
     return () => {
-      style.position = '';
-      style.top = '';
-      style.left = '';
-      style.right = '';
-      window.scrollTo(0, scrollY);
+      document.body.style.overflow = '';
     };
-  }, [menuOpen, authOpen]);
+  }, [menuOpen, authOpen, searchOpen]);
 
   useEffect(() => {
-    if (!menuOpen && !authOpen) return;
+    if (!menuOpen && !authOpen && !searchOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setMenuOpen(false);
         setAuthOpen(false);
+        setSearchOpen(false);
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [menuOpen, authOpen]);
+  }, [menuOpen, authOpen, searchOpen]);
 
   // Si llegamos aqui redirigidos por AccountGuard o por el middleware de
   // next-auth (al entrar a una zona protegida sin sesion), abrimos el
@@ -110,7 +95,14 @@ export default function Header({
 
   function openAuth() {
     setMenuOpen(false);
+    setSearchOpen(false);
     setAuthOpen(true);
+  }
+
+  function toggleSearch() {
+    setMenuOpen(false);
+    setAuthOpen(false);
+    setSearchOpen((open) => !open);
   }
 
   function handleWishlistClick(e: React.MouseEvent<HTMLAnchorElement>) {
@@ -130,6 +122,7 @@ export default function Header({
             data-open={menuOpen}
             onClick={() => {
               setAuthOpen(false);
+              setSearchOpen(false);
               setMenuOpen((open) => !open);
             }}
             aria-expanded={menuOpen}
@@ -145,9 +138,15 @@ export default function Header({
         </Link>
 
         <div className={styles.actions}>
-          <Link href={searchHref} className={styles.actionLink}>
+          <button
+            type="button"
+            onClick={toggleSearch}
+            className={styles.actionButton}
+            aria-expanded={searchOpen}
+            aria-controls="search-dropdown"
+          >
             {searchLabel}
-          </Link>
+          </button>
 
           {authHydrated && user ? (
             <Link href="/account" className={`${styles.actionLink} ${styles.hideOnMobile}`}>
@@ -177,6 +176,8 @@ export default function Header({
         </div>
       </div>
 
+      <SearchDropdown isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
       <div className={styles.overlay} data-open={menuOpen} onClick={() => setMenuOpen(false)} aria-hidden="true" />
 
       <aside id="site-sidebar" className={styles.sidebar} data-open={menuOpen} aria-hidden={!menuOpen}>
@@ -191,6 +192,30 @@ export default function Header({
             ))}
           </ul>
         </nav>
+
+        <div className={styles.sidebarFooter}>
+          {authHydrated && user ? (
+            <a href="/account" onClick={() => setMenuOpen(false)}>
+              {user.fullName.split(' ')[0]}
+            </a>
+          ) : (
+            <button type="button" className={styles.sidebarLogout} onClick={openAuth}>
+              {loginLabel}
+            </button>
+          )}
+
+          <a
+            href={wishlistHref}
+            onClick={(e) => {
+              handleWishlistClick(e);
+              if (user || !authHydrated) {
+                setMenuOpen(false);
+              }
+            }}
+          >
+            {wishlistLabel} ({wishlistItemCount})
+          </a>
+        </div>
       </aside>
 
       <AuthSidebar isOpen={authOpen} onClose={() => setAuthOpen(false)} />
