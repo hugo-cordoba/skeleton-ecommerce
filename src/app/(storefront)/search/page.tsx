@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import CatalogHeader from '@/components/product/CatalogHeader/CatalogHeader';
 import ProductCatalog from '@/components/product/ProductCatalog/ProductCatalog';
-import SearchForm from '@/components/product/SearchForm/SearchForm';
+import SearchDropdown from '@/components/product/SearchDropdown/SearchDropdown';
 import { searchProducts } from '@/data/products.config';
 import {
   filterAndSortProducts,
@@ -40,7 +40,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         title="Buscar"
         description={hasQuery ? undefined : 'Escribe el nombre de un producto o una categoría.'}
       />
-      <SearchForm defaultValue={query} />
+      <SearchDropdown inline defaultValue={query} key={query} />
 
       {hasQuery && (
         <Suspense fallback={null}>

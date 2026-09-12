@@ -12,7 +12,6 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
       <Header
         siteName={siteConfig.name}
         navLinks={siteNavLinks}
-        searchHref="/search"
         wishlistHref="/account/wishlist"
         cartHref="/cart"
       />

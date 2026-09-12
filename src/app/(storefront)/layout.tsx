@@ -10,7 +10,6 @@ export default function StorefrontLayout({ children }: { children: React.ReactNo
       <Header
         siteName={siteConfig.name}
         navLinks={siteNavLinks}
-        searchHref="/search"
         wishlistHref="/account/wishlist"
         cartHref="/cart"
       />

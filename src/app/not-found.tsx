@@ -11,7 +11,6 @@ export default function NotFound() {
       <Header
         siteName={siteConfig.name}
         navLinks={siteNavLinks}
-        searchHref="/search"
         wishlistHref="/account/wishlist"
         cartHref="/cart"
       />

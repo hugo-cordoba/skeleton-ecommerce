@@ -13,8 +13,6 @@ import styles from './Header.module.css';
 interface HeaderProps {
   siteName: string;
   navLinks?: NavLink[];
-  /** Ya no se usa como Link directo: "Buscar" abre SearchDropdown. Se mantiene en el tipo por si algún caller la sigue pasando. */
-  searchHref?: string;
   searchLabel?: string;
   loginLabel?: string;
   wishlistHref?: string;
@@ -57,12 +55,15 @@ export default function Header({
     prevWishlistCountRef.current = wishlistItemCount;
   }, [wishlistItemCount]);
 
-  // Un solo efecto controla el scroll del body para los tres paneles
-  // (menu, auth y búsqueda), asi evitamos que se pisen si alguna vez coinciden.
+  // Bloquea el scroll en <html>, no en <body>: <html> tiene overflow-y:
+  // scroll explícito en globals.css, así que es el elemento que realmente
+  // hace scroll (no hereda el "propagation to viewport" que usaría body).
+  // Bloquear body en su lugar lo convierte en su propio contenedor de
+  // scroll y rompe el position: sticky del header.
   useEffect(() => {
-    document.body.style.overflow = menuOpen || authOpen || searchOpen ? 'hidden' : '';
+    document.documentElement.style.overflow = menuOpen || authOpen || searchOpen ? 'hidden' : '';
     return () => {
-      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
   }, [menuOpen, authOpen, searchOpen]);
 
@@ -79,9 +80,6 @@ export default function Header({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [menuOpen, authOpen, searchOpen]);
 
-  // Si llegamos aqui redirigidos por AccountGuard o por el middleware de
-  // next-auth (al entrar a una zona protegida sin sesion), abrimos el
-  // sidebar de acceso automaticamente en vez de mandar a una pagina aparte.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
