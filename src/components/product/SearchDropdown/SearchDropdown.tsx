@@ -25,6 +25,13 @@ export default function SearchDropdown({ isOpen = false, onClose, inline = false
     if (!inline && isOpen) inputRef.current?.focus();
   }, [inline, isOpen]);
 
+  // Esta variante "inline" solo se usa en /search: si el popup del Header
+  // dejó <html> con overflow bloqueado antes de navegar, lo liberamos.
+  useEffect(() => {
+    if (!inline) return;
+    document.documentElement.style.overflow = '';
+  }, [inline]);
+
   // El popup se queda abierto (con el loader) mientras Next prepara la
   // pagina de destino; solo se cierra y se limpia el campo cuando la
   // transicion termina, para no dar el salto a una pagina a medio cargar.
@@ -47,12 +54,8 @@ export default function SearchDropdown({ isOpen = false, onClose, inline = false
   }
 
   function handleClear() {
-    if (isPending) return;
     setQuery('');
     inputRef.current?.focus();
-    startTransition(() => {
-      router.push('/');
-    });
   }
 
   function handleOverlayClick() {
