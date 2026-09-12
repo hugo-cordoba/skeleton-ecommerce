@@ -67,6 +67,11 @@
   border-bottom-color: var(--color-primary);
 }
 
+.input:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
 .close {
   flex: 0 0 auto;
   display: flex;
@@ -106,8 +111,28 @@
   color: var(--color-text-muted);
 }
 
+.spinner {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid var(--color-secondary);
+  border-top-color: var(--color-text);
+  animation: searchSpinnerRotate 0.7s linear infinite;
+}
+
+@keyframes searchSpinnerRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .panel {
     animation: none;
+  }
+
+  .spinner {
+    animation-duration: 1.4s;
   }
 }
